@@ -32,7 +32,7 @@ body {
     align-items: center;
     gap: 0;
 }
-.logo-img{height:150px;width:auto;
+.logo-img{height:160px;width:auto;
 }
 
 .logo-text {
@@ -50,6 +50,12 @@ body {
     font-size: 13px;
     font-weight: bold;
     margin-top: 0;
+}
+
+.QR-container img{
+  height:150px;
+  width:150px;
+  border:0;
 }
 
 .menu-btn {
@@ -133,7 +139,7 @@ body {
     border: none;
     outline: none;
     background: transparent;
-    font-size: 16px;
+    font-size: 15px;
     margin-left: 10px;
 }
 
@@ -169,13 +175,13 @@ body {
 }
 /* CALL BOX */
 .main-content-wrapper .call-box {
-    width: 260px;
+    width: 200px;
     max-width: none; /* booking-box के बराबर */
     border: 1px solid #ccc;
     border-radius: 12px;
     text-align: center;
     margin-top: 20px;
-    padding: 50px;
+    padding: 30px;
 }
 
 
@@ -388,7 +394,7 @@ body {
 /* DRIVER */
 .driver-section {
     text-align: center;
-    padding: 65px 20px;
+    padding: 40px 10px;
     background: #102a56;
     color: white;
 }
@@ -402,12 +408,12 @@ body {
 }
 
 .driver-btn {
-    padding: 14px 25px;
+    padding: 12px 20px;
     border: none;
-    border-radius: 10px;
+    border-radius: 8px;
     background: #f58220;
     color: white;
-    font-size: 16px;
+    font-size: 12px;
     font-weight: bold;
     cursor: pointer;
 }
@@ -519,7 +525,7 @@ footer p {
     color: white;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 700px) {
 
     .booking-confirmation {
         width: 88%;
@@ -562,7 +568,7 @@ footer p {
     object-fit: cover;
     display: block;
   }
-  logo-img {height:100px;width:auto;
+  logo-img {height:80px;width:auto;
   }
   /* Hero Section */
   .hero {
@@ -620,18 +626,18 @@ footer p {
   .steps,
   .features {
     grid-template-columns: 1fr; /*[span_11](start_span)[span_11](end_span) */
-    gap: 15px;
+    gap: 10px;
   }
 
   /* General Sections */
   .section,
   .why-section {
-    padding: 45px 20px; /*[span_12](start_span)[span_12](end_span) */
+    padding: 40px 20px; /*[span_12](start_span)[span_12](end_span) */
   }
 
   .section h2,
   .why-section h2 {
-    font-size: 27px; /*[span_13](start_span)[span_13](end_span) */
+    font-size: 25px; /*[span_13](start_span)[span_13](end_span) */
   }
 
 } /* Closing bracket for media query */
