@@ -10,9 +10,12 @@ body {
     color: #17233c;
     background:linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('images/background3.jpg');
     background-size: 100%;
+    background-width:100%;
     background-position: center;
-    height: 100vh;
+    background-repeat: no-repeat;
+    min-height: 100vh;
     margin: 0;
+    overflow-x: hidden;
 }
 
 /* HEADER */
