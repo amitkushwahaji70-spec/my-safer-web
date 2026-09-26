@@ -178,7 +178,7 @@ body {
 }
 /* CALL BOX */
 .main-content-wrapper .call-box {
-    width: 200px;
+    width: 150px;
     max-width: none; /* booking-box के बराबर */
     border: 1px solid #ccc;
     border-radius: 12px;
@@ -397,7 +397,7 @@ body {
 /* DRIVER */
 .driver-section {
     text-align: center;
-    padding: 40px 10px;
+    padding: 30px 10px;
     background: #102a56;
     color: white;
 }
@@ -416,7 +416,7 @@ body {
     border-radius: 8px;
     background: #f58220;
     color: white;
-    font-size: 12px;
+    font-size: 15px;
     font-weight: bold;
     cursor: pointer;
 }
@@ -559,8 +559,8 @@ footer p {
   }
 
   body {
-    background-size: cover;
-    background-position: center;
+    background-size: 100% auto;
+    background-position: top center;
     background-repeat: no-repeat;
     overflow-x: hidden;
   }
@@ -577,11 +577,10 @@ footer p {
   .hero {
     padding-top: 20px  10px; /*[span_3](start_span)[span_3](end_span) */
     background-size: 100% auto;
-    background-position: center;
+    background-position: top center;
     background-repeat: no-repeat;
     width: 100%;
     height: auto;  
-    min-height: 250px;
     overflow: hidden;
     display: flex;
     flex-direction: column;
