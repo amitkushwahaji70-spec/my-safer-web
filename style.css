@@ -9,8 +9,9 @@ body {
     background: #f7f9fc;
     color: #17233c;
     background:linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('images/background3.jpg');
-    background-size: 100%;
+    background-size: cover;
     background-position: center;
+    background-attachment: fixed;
     background-repeat: no-repeat;
     min-height: 100vh;
     margin: 0;
@@ -57,15 +58,15 @@ body {
 .QR-container img{
   height:150px;
   width:150px;
-  border:0;
+  border:0; 
 }
 .call-btn {
-    width: 30px;
+    width: 35px;
     border: none;
     border-radius: 6px;
     background: none;
     color: white;
-    font-size: 20px;
+    font-size: 30px;
     cursor: pointer;
     display: inline-block;
 }
@@ -502,7 +503,7 @@ footer p {
     color: white;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 769px) {
 
     .booking-confirmation {
         width: 88%;
@@ -524,8 +525,8 @@ footer p {
     }
 }
 
-/* MOBILE RESPONSIVE FIXES */
-@media (min-width: 769px) { 
+
+@media (max-width: 769px) { 
 
   /* Global Fixes to prevent layout breaking & tile repetition */
   * {
@@ -545,8 +546,11 @@ footer p {
     object-fit: cover;
     display: block;
   }
-  .logo-img {height:80px;width:auto;
+  .logo-img {height:60px;width:auto;
   }
+  .header {height:100px,width:auto;
+          }       
+   QR-container img {height:80px; width:80px;}
   /* Hero Section */
   .hero {
     padding: 20px  10px; 
