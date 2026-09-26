@@ -10,7 +10,6 @@ body {
     color: #17233c;
     background:linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('images/background3.jpg');
     background-size: 100%;
-    background-width:100%;
     background-position: center;
     background-repeat: no-repeat;
     min-height: 100vh;
@@ -35,7 +34,7 @@ body {
     align-items: center;
     gap: 0;
 }
-.logo-img{height:auto;max-width:100%;object-fit: contain;
+.logo-img{height: 160px;max-width: auto;object-fit: contain;
 }
 
 .logo-text {
@@ -60,7 +59,6 @@ body {
   width:150px;
   border:0;
 }
-.call {9244130492}
 .call-btn {
     width: 30px;
     border: none;
@@ -92,9 +90,9 @@ body {
 }
 
 .hero h1 {
-    font-size: 42px;
+    font-size: 35px;
     line-height: 1.2;
-    color:  orange;
+    color:  yellow;
 }
 
 .hero h1 span {
@@ -111,7 +109,7 @@ body {
 
 /* BOOKING BOX */
 
-.main-content-wrapper .booking-box {
+.booking-box {
     width: 90%;
     max-width:none;
     margin: 0;
@@ -130,8 +128,8 @@ body {
 
 /* LOCATION INPUT */
 .location-input {
-    height: 58px;
-    border: 1px solid #d8dee8;
+    height: 50px;
+    border: 2px solid #d8dee8;
     border-radius: 12px;
     display: flex;
     align-items: center;
@@ -178,7 +176,12 @@ body {
     font-size: 20px;
     cursor: pointer;
 }
-
+.listening {
+    background-color: red !important;
+    animation: blink 1s infinite; 
+}
+@keyframes blink { 50% { opacity: 0.6; } 
+}
 
 
 /* BOOK BUTTON */
@@ -203,8 +206,9 @@ body {
 /* FARE */
 .fare-box {
     max-width: 850px;
+    height: auto;
     margin: 15px auto 0;
-    padding: 18px;
+    padding: 15px;
     background: #f1f5fa;
     border-radius: 14px;
     display: flex;
@@ -521,7 +525,7 @@ footer p {
 }
 
 /* MOBILE RESPONSIVE FIXES */
-@media (max-width: 768px) { /*[span_2](start_span)[span_2](end_span) */
+@media (min-width: 769px) { 
 
   /* Global Fixes to prevent layout breaking & tile repetition */
   * {
@@ -541,11 +545,11 @@ footer p {
     object-fit: cover;
     display: block;
   }
-  logo-img {height:80px;width:auto;
+  .logo-img {height:80px;width:auto;
   }
   /* Hero Section */
   .hero {
-    padding-top: 20px  10px; /*[span_3](start_span)[span_3](end_span) */
+    padding: 20px  10px; 
     background-size: 100% auto;
     background-position: top center;
     background-repeat: no-repeat;
@@ -560,16 +564,16 @@ footer p {
   }
 
   .hero h1 {
-    font-size: 31px; /*[span_4](start_span)[span_4](end_span) */
+    font-size: 31px; 
   }
 
   .sub-tagline {
-    font-size: 16px; /*[span_5](start_span)[span_5](end_span) */
+    font-size: 16px; 
   }
 
   /* Booking & Input Containers */
   .booking-box {
-    padding: 18px; /*[span_6](start_span)[span_6](end_span) */
+    padding: 18px; 
     width: 92% !important;
     max-width: 100%;
     margin: 0 auto;
@@ -577,7 +581,7 @@ footer p {
 
   .destination-row {
     flex-direction: column;
-    gap: 8px; /*[span_7](start_span)[span_7](end_span) */
+    gap: 8px; 
     width: 100%;
   }
 
@@ -592,25 +596,25 @@ footer p {
   }
 
   .call-btn {
-    width: 52px; /*[span_10](start_span)[span_10](end_span) */
+    width: 52px; 
   }
 
   /* Grid Fixes (Steps & Features) */
   .steps,
   .features {
-    grid-template-columns: 1fr; /*[span_11](start_span)[span_11](end_span) */
+    grid-template-columns: 1fr; 
     gap: 10px;
   }
 
   /* General Sections */
   .section,
   .why-section {
-    padding: 40px 20px; /*[span_12](start_span)[span_12](end_span) */
+    padding: 40px 20px; 
   }
 
   .section h2,
   .why-section h2 {
-    font-size: 25px; /*[span_13](start_span)[span_13](end_span) */
+    font-size: 25px; 
   }
 
 } /* Closing bracket for media query */
