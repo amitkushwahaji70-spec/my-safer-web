@@ -60,6 +60,21 @@ body {
   width:150px;
   border:0;
 }
+.call {9244130492}
+.call-btn {
+    width: 30px;
+    border: none;
+    border-radius: 6px;
+    background: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    display: inline-block;
+}
+
+.call-btn:hover {
+    opacity: 0.9;
+}
 
 .menu-btn {
     border: none;
@@ -92,19 +107,6 @@ body {
     color: white;
 }
 
-/* BOOKING + CALL HORIZONTAL LAYOUT */
-
-.main-content-wrapper {
-    max-width: 1200px;
-    margin: 35px auto;
-    padding: 0 20px;
-
-    display: flex;
-    flex-direction: row;
-    align-items: stretch;
-    justify-content: center;
-    gap: 20px;
-}
 
 
 /* BOOKING BOX */
@@ -159,7 +161,7 @@ body {
 }
 
 
-/* DESTINATION + CALL */
+/* DESTINATION */
 .destination-row {
     display: flex;
     gap: 12px;
@@ -176,39 +178,7 @@ body {
     font-size: 20px;
     cursor: pointer;
 }
-/* CALL BOX */
-.main-content-wrapper .call-box {
-    width: 150px;
-    max-width: none; /* booking-box के बराबर */
-    border: 1px solid #ccc;
-    border-radius: 12px;
-    text-align: center;
-    margin-top: 20px;
-    padding: 30px;
-}
 
-
-.call-tagline {
-    font-size: 16px;
-    font-weight: bold;
-    color: #333;
-}
-
-
-.call-btn {
-    width: 80px;
-    border: none;
-    border-radius: 12px;
-    background: none;
-    color: white;
-    font-size: 60px;
-    cursor: pointer;
-    display: inline-block;
-}
-
-.call-btn:hover {
-    opacity: 0.9;
-}
 
 
 /* BOOK BUTTON */
