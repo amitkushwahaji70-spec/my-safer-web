@@ -35,7 +35,7 @@ body {
     align-items: center;
     gap: 0;
 }
-.logo-img{height:160px;width:auto;
+.logo-img{height:auto;max-width:100%;object-fit: contain;
 }
 
 .logo-text {
@@ -528,7 +528,7 @@ footer p {
     color: white;
 }
 
-@media (max-width: 700px) {
+@media (max-width: 768px) {
 
     .booking-confirmation {
         width: 88%;
@@ -551,7 +551,7 @@ footer p {
 }
 
 /* MOBILE RESPONSIVE FIXES */
-@media (max-width: 700px) { /*[span_2](start_span)[span_2](end_span) */
+@media (max-width: 768px) { /*[span_2](start_span)[span_2](end_span) */
 
   /* Global Fixes to prevent layout breaking & tile repetition */
   * {
@@ -576,11 +576,12 @@ footer p {
   /* Hero Section */
   .hero {
     padding-top: 20px  10px; /*[span_3](start_span)[span_3](end_span) */
-    background-size: cover;
+    background-size: 100% auto;
     background-position: center;
     background-repeat: no-repeat;
     width: 100%;
-    min-height: 100dvh;
+    height: auto;  
+    min-height: 250px;
     overflow: hidden;
     display: flex;
     flex-direction: column;
