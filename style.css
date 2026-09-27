@@ -59,7 +59,7 @@ body {
     border: none;
     border-radius: 6px;
     background: none;
-    color: white;
+    color: black;
     font-size: 30px;
     cursor: pointer;
     display: inline-block;
@@ -82,6 +82,7 @@ body {
     text-align: center;
     padding: 55px 20px 35px;
     background: #eef3f9;
+    background-color: rgba(0, 0, 0, 0.2);
 }
 
 .hero h1 {
@@ -108,7 +109,6 @@ body {
     width: 90%;
     max-width:none;
     margin: 0;
-    background-color: rgba(0, 0, 0, 0.6);
     padding: 20px;
     border-radius: 12px ;
     box-shadow: 0 4px 10px rgba(0,0,0,0.04);
@@ -527,7 +527,8 @@ footer p {
     box-sizing: border-box;
   }
 .header {
-   height:90px,width:360px;
+  height:80px,width:350px;
+  .background-img {height:80px, width:350px;}
    background-size: cover;
   .logo-img {height:70px;width:auto;
    }
