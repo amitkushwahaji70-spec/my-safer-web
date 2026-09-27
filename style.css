@@ -6,12 +6,7 @@
 
 body {
     font-family: Arial, sans-serif;
-    background: #f7f9fc;
     color: #17233c;
-    background:linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('images/background3.jpg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
     min-height: 100vh;
     margin: 0;
     overflow-x: hidden;
@@ -86,7 +81,7 @@ body {
 .hero {
     text-align: center;
     padding: 55px 20px 35px;
-    background: transparent;
+    background: #eef3f9;
 }
 
 .hero h1 {
@@ -294,7 +289,7 @@ body {
 }
 
 .step {
-    background: white;
+    background: #eef3f9;
     padding: 25px 15px;
     border-radius: 15px;
     box-shadow: 0 4px 18px rgba(0,0,0,0.06);
@@ -305,7 +300,7 @@ body {
     height: 45px;
     margin: auto;
     border-radius: 50%;
-    background: #f58220;
+    background: #eef3f9;
     color: white;
     display: flex;
     align-items: center;
@@ -531,20 +526,6 @@ footer p {
   * {
     box-sizing: border-box;
   }
-
-  body {
-    background-size: 100% auto;
-    background-position: top center;
-    background-repeat: no-repeat;
-    overflow-x: hidden;
-  }
-
-  img {
-    max-width: 100%;
-    height: auto;
-    object-fit: cover;
-    display: block;
-  }
 .header {height:90px,width:360px;
    background-size: cover;
   .logo-img {height:60px;width:auto;
@@ -555,9 +536,6 @@ footer p {
   /* Hero Section */
   .hero {
     padding: 20px  10px; 
-    background-size: 100% auto;
-    background-position: top center;
-    background-repeat: no-repeat;
     width: 100%;
     height: auto;  
     overflow: hidden;
