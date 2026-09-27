@@ -64,7 +64,7 @@ body {
     border: none;
     border-radius: 6px;
     background: none;
-    color: white;
+    color: red;
     font-size: 30px;
     cursor: pointer;
     display: inline-block;
@@ -92,7 +92,7 @@ body {
 .hero h1 {
     font-size: 35px;
     line-height: 1.2;
-    color:  yellow;
+    color:  orange;
 }
 
 .hero h1 span {
@@ -524,7 +524,7 @@ footer p {
     }
 }
 
-
+/* MOBILE RESPONSIVE FIXES */
 @media (max-width: 769px) { 
 
   /* Global Fixes to prevent layout breaking & tile repetition */
@@ -545,11 +545,13 @@ footer p {
     object-fit: cover;
     display: block;
   }
+.header {height:90px,width:360px;
+   background-size: cover;
   .logo-img {height:60px;width:auto;
-  }
-  .header {height:90px,width:360px;
-          }       
-   QR-container img {height:60px; width:60px;}
+   }
+   .call-btn {width:25px,font-size:20px}             
+   .QR-container img {height:60px; width:60px;}
+ }
   /* Hero Section */
   .hero {
     padding: 20px  10px; 
