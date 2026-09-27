@@ -59,7 +59,7 @@ body {
     border: none;
     border-radius: 6px;
     background: none;
-    color: red;
+    color: white;
     font-size: 30px;
     cursor: pointer;
     display: inline-block;
@@ -108,10 +108,10 @@ body {
     width: 90%;
     max-width:none;
     margin: 0;
-    background: none;
+    background-color: rgba(0, 0, 0, 0.6);
     padding: 20px;
     border-radius: 12px ;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.04);
 }
 
 .booking-box h2 {
@@ -232,7 +232,7 @@ body {
 .quick-book {
     max-width: 850px;
     margin: 25px auto;
-    background: #f1f5fa;
+    background: #eef3f9;
     padding: 20px;
     border-radius: 15px;
     display: flex;
@@ -301,7 +301,7 @@ body {
     margin: auto;
     border-radius: 50%;
     background: #eef3f9;
-    color: white;
+    color: #eef3f9;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -526,12 +526,13 @@ footer p {
   * {
     box-sizing: border-box;
   }
-.header {height:90px,width:360px;
+.header {
+   height:90px,width:360px;
    background-size: cover;
-  .logo-img {height:60px;width:auto;
+  .logo-img {height:70px;width:auto;
    }
-   .call-btn {width:25px,font-size:20px}             
-   .QR-container img {height:60px; width:60px;}
+  .call-btn {width:20px,font-size:10px}             
+  .QR-container img {height:70px; width:70px;}
  }
   /* Hero Section */
   .hero {
