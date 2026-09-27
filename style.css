@@ -11,7 +11,6 @@ body {
     background:linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('images/background3.jpg');
     background-size: cover;
     background-position: center;
-    background-attachment: fixed;
     background-repeat: no-repeat;
     min-height: 100vh;
     margin: 0;
@@ -548,9 +547,9 @@ footer p {
   }
   .logo-img {height:60px;width:auto;
   }
-  .header {height:100px,width:auto;
+  .header {height:90px,width:360px;
           }       
-   QR-container img {height:80px; width:80px;}
+   QR-container img {height:60px; width:60px;}
   /* Hero Section */
   .hero {
     padding: 20px  10px; 
