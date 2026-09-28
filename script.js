@@ -397,14 +397,14 @@ function startVoiceSearch() {
         1;
 
 
-    recognition.start();
+recognition.onstart = function() {
+  document.getElementById('micBtn').classList.add('listening');
+  document.getElementById('micBtn').innerText = "Listening...";
+};
 
-
-    recognition.onstart = () => {
-
-        console.log(
-            "Voice recognition started."
-        );
+recognition.onend = function() {
+  document.getElementById('micBtn').classList.remove('listening');
+  document.getElementById('micBtn').innerText = "🎤 Start";
 
     };
 
@@ -1018,53 +1018,100 @@ function editBooking() {
 }
 
 
-// =====================================
-// SEND CONFIRMED BOOKING
-// =====================================
+// ===================================
+// SEND CONFIRMED BOOKING TO SERVER
+// ===================================
 
-function sendConfirmedBooking(
-    booking
-) {
+async function sendConfirmedBooking(booking) {
 
-    const message =
-`🚚 SAFER SAMAN BOOKING
+    try {
 
-🆔 Booking ID:
-${booking.bookingId}
+        console.log("Sending booking to server...", booking);
 
-📍 Pickup:
-${booking.pickupLabel}
+        const response = await fetch(
+            "https://YOUR-VERCEL-PROJECT.vercel.app/api/send-booking",
+            {
+                method: "POST",
 
-⬇️ Destination:
-${booking.dropLabel}
+                headers: {
+                    "Content-Type": "application/json"
+                },
 
-📏 Distance:
-${booking.distance.toFixed(1)} km
+                body: JSON.stringify({
 
-💰 Estimated Fare:
-₹${booking.fare}
+                    bookingId: booking.bookingId,
 
-📌 Status:
-Pending
+                    pickup: booking.pickupLabel,
 
-Please confirm this booking.`;
+                    destination: booking.dropLabel,
 
+                    distance: booking.distance.toFixed(1),
 
-    const number =
-        "919244130492";
+                    fare: booking.fare
 
-
-    const whatsappUrl =
-        `https://wa.me/${number}?text=` +
-        encodeURIComponent(
-            message
+                })
+            }
         );
 
 
-    window.open(
-        whatsappUrl,
-        "_blank"
-    );
+        const data = await response.json();
+
+
+        console.log(
+            "Server response:",
+            data
+        );
+
+
+        if (!response.ok || !data.success) {
+
+            throw new Error(
+                data.message ||
+                "WhatsApp booking failed"
+            );
+
+        }
+
+
+        alert(
+            "Booking Confirmed! ✅\n\nBooking ID: " +
+            booking.bookingId
+        );
+
+
+        // Hide confirmation box
+
+        const confirmation =
+            document.getElementById(
+                "bookingConfirmation"
+            );
+
+        if (confirmation) {
+
+            confirmation.classList.remove(
+                "show"
+            );
+
+        }
+
+
+    } catch (error) {
+
+        console.error(
+            "Booking sending error:",
+            error
+        );
+
+
+        alert(
+            "Booking send nahi ho paayi. Please try again."
+        );
+
+    }
+
+
+
+    fetch("/api/send-booking", ...)
 
 }
 
