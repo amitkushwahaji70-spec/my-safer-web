@@ -1029,7 +1029,7 @@ async function sendConfirmedBooking(booking) {
         console.log("Sending booking to server...", booking);
 
         const response = await fetch(
-            "https://YOUR-VERCEL-PROJECT.vercel.app/api/send-booking",
+            "https://my-safer-web.vercel.app/api/send-booking"
             {
                 method: "POST",
 
