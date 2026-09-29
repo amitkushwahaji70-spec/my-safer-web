@@ -1,121 +1,139 @@
 export default async function handler(req, res) {
 
-    // CORS
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  // CORS
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-    if (req.method === "OPTIONS") {
-        return res.status(200).end();
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+
+  if (req.method !== "POST") {
+    return res.status(405).json({
+      success: false,
+      message: "Method not allowed"
+    });
+  }
+
+  try {
+
+    const {
+      latitude,
+      longitude,
+      address
+    } = req.body;
+
+    // Validation
+    if (
+      latitude === undefined ||
+      longitude === undefined
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Location data missing"
+      });
     }
 
-    if (req.method !== "POST") {
-        return res.status(405).json({
-            success: false,
-            message: "Method not allowed"
-        });
+    const accessToken =
+      process.env.WHATSAPP_ACCESS_TOKEN;
+
+    const phoneNumberId =
+      process.env.WHATSAPP_PHONE_NUMBER_ID;
+
+    const recipientNumber =
+      process.env.WHATSAPP_RECIPIENT_NUMBER;
+
+    if (
+      !accessToken ||
+      !phoneNumberId ||
+      !recipientNumber
+    ) {
+      return res.status(500).json({
+        success: false,
+        message: "WhatsApp environment variables missing"
+      });
     }
 
-    try {
+    const mapLink =
+      `https://www.google.com/maps?q=${latitude},${longitude}`;
 
-        const {
-            latitude,
-            longitude,
-            address
-        } = req.body;
-
-        if (
-            latitude === undefined ||
-            longitude === undefined
-        ) {
-            return res.status(400).json({
-                success: false,
-                message: "Location data missing"
-            });
-        }
-
-        const token =
-            process.env.WHATSAPP_ACCESS_TOKEN;
-
-        const phoneNumberId =
-            process.env.WHATSAPP_PHONE_NUMBER_ID;
-
-        const recipient =
-            process.env.WHATSAPP_RECIPIENT_NUMBER;
-
-        if (!token || !phoneNumberId || !recipient) {
-            return res.status(500).json({
-                success: false,
-                message: "WhatsApp environment variables missing"
-            });
-        }
-
-        const mapLink =
-            `https://www.google.com/maps?q=${latitude},${longitude}`;
-
-        const message =
+    const message =
 `📍 CURRENT LOCATION
 
 Address:
 ${address || "Address unavailable"}
 
-Latitude: ${latitude}
-Longitude: ${longitude}
+Latitude:
+${latitude}
+
+Longitude:
+${longitude}
 
 Google Maps:
 ${mapLink}`;
 
-        const response = await fetch(
-            `https://graph.facebook.com/vXX.X/${phoneNumberId}/messages`,
-            {
-                method: "POST",
+    const response = await fetch(
+      `https://graph.facebook.com/v26.0/${phoneNumberId}/messages`,
+      {
+        method: "POST",
 
-                headers: {
-                    "Authorization": `Bearer ${token}`,
-                    "Content-Type": "application/json"
-                },
+        headers: {
+          "Authorization": `Bearer ${accessToken}`,
+          "Content-Type": "application/json"
+        },
 
-                body: JSON.stringify({
-                    messaging_product: "whatsapp",
-                    to: recipient,
-                    type: "text",
-                    text: {
-                        body: message
-                    }
-                })
-            }
-        );
+        body: JSON.stringify({
+          messaging_product: "whatsapp",
+          recipient_type: "individual",
+          to: recipientNumber,
+          type: "text",
+          text: {
+            preview_url: true,
+            body: message
+          }
+        })
+      }
+    );
 
-        const data = await response.json();
+    const data = await response.json();
 
-        console.log("WhatsApp location response:", data);
+    console.log(
+      "WhatsApp Location Response:",
+      data
+    );
 
-        if (!response.ok) {
-            return res.status(response.status).json({
-                success: false,
-                message:
-                    data?.error?.message ||
-                    "WhatsApp location sending failed",
-                details: data
-            });
-        }
+    if (!response.ok) {
 
-        return res.status(200).json({
-            success: true,
-            message: "Location sent successfully",
-            data
-        });
+      return res.status(response.status).json({
+        success: false,
+        message:
+          data?.error?.message ||
+          "WhatsApp location sending failed",
+        error: data
+      });
 
-    } catch (error) {
-
-        console.error(
-            "Send location error:",
-            error
-        );
-
-        return res.status(500).json({
-            success: false,
-            message: "Server error"
-        });
     }
+
+    return res.status(200).json({
+      success: true,
+      message: "Location sent successfully",
+      whatsapp: data
+    });
+
+  } catch (error) {
+
+    console.error(
+      "Send Location Error:",
+      error
+    );
+
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: error.message
+    });
+
+  }
+
 }
