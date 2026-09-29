@@ -82,7 +82,7 @@ body {
     text-align: center;
     padding: 55px 20px 35px;
     background: #135e96;
-    background-color: rgba(0, 0, 0, 0.2);
+    background-color: #135e96;
 }
 
 #getLiftBtn {
