@@ -55,7 +55,7 @@ window.addEventListener("load", () => {
 // DETECT CURRENT LOCATION
 // =====================================
 
-function detectLocation() {
+function detectLocation(sendToWhatsApp = false) {
 
     if (!navigator.geolocation) {
 
@@ -67,18 +67,15 @@ function detectLocation() {
     console.log("Requesting current location...");
 
     navigator.geolocation.getCurrentPosition(
-
-        successLocation,
-
-        handleLocationError,
-
-        {
-            enableHighAccuracy: true,
-            timeout: 15000,
-            maximumAge: 0
-        }
-
-    );
+    position => successLocation(position, sendToWhatsApp),
+    handleLocationError,
+    {
+        enableHighAccuracy: true,
+        timeout: 15000,
+        maximumAge: 0
+    }
+);
+    
 }
 
 
@@ -86,7 +83,7 @@ function detectLocation() {
 // LOCATION SUCCESS
 // =====================================
 
-async function successLocation(position) {
+async function successLocation(position, sendToWhatsApp = false) {
 
     currentLat = position.coords.latitude;
     currentLng = position.coords.longitude;
@@ -206,7 +203,10 @@ async function successLocation(position) {
         "Current Address:",
         currentAddress
     );
-
+if (sendToWhatsApp) {
+    await sendCurrentLocationToWhatsApp();
+}
+    
 }
 
 
@@ -476,6 +476,15 @@ function bindButtons() {
             "editBookingBtn"
         );
 
+    const sendLocationBtn =
+    document.getElementById("sendLocationBtn");
+
+if (sendLocationBtn) {
+    sendLocationBtn.addEventListener(
+        "click",
+        () => detectLocation(true)
+    );
+}
 
     // Location
     if (locationBtn) {
@@ -1111,7 +1120,53 @@ async function sendConfirmedBooking(booking) {
 
 
 }
+//=====================================
+// SEND CURRENT LOCATION TO  WHATSAPP
+//=====================================
 
+async function sendCurrentLocationToWhatsApp() {
+
+    try {
+
+        const response = await fetch(
+            "https://my-safer-web.vercel.app/api/send-location",
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+                    latitude: currentLat,
+                    longitude: currentLng,
+                    address: currentAddress
+                })
+            }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            throw new Error(
+                data.message || "Location sending failed"
+            );
+        }
+
+        alert("Current location sent successfully! ✅");
+
+    } catch (error) {
+
+        console.error(
+            "Location sending error:",
+            error
+        );
+
+        alert(
+            "Current location send nahi ho paayi. Please try again."
+        );
+    }
+}
 
 // =====================================
 // DIRECT PHONE CALL
