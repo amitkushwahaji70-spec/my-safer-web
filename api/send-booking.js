@@ -26,27 +26,42 @@ export default async function handler(req, res) {
       fare
     } = req.body;
 
-    // Basic validation
-    if (!bookingId || !pickup || !destination || !distance || !fare) {
+    // Validation
+    if (
+      !bookingId ||
+      !pickup ||
+      !destination ||
+      !distance ||
+      fare === undefined
+    ) {
       return res.status(400).json({
         success: false,
         message: "Booking details are incomplete"
       });
     }
 
-    const accessToken = process.env.WHATSAPP_ACCESS_TOKEN;
-    const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
-    const recipientNumber = process.env.WHATSAPP_RECIPIENT_NUMBER;
+    const accessToken =
+      process.env.WHATSAPP_ACCESS_TOKEN;
 
-    if (!accessToken || !phoneNumberId || !recipientNumber) {
+    const phoneNumberId =
+      process.env.WHATSAPP_PHONE_NUMBER_ID;
+
+    const recipientNumber =
+      process.env.WHATSAPP_RECIPIENT_NUMBER;
+
+    if (
+      !accessToken ||
+      !phoneNumberId ||
+      !recipientNumber
+    ) {
       return res.status(500).json({
         success: false,
         message: "WhatsApp environment variables are missing"
       });
     }
 
-    const message = `
-🚖 NEW BOOKING
+    const message =
+`🚖 NEW BOOKING
 
 Booking ID: ${bookingId}
 
@@ -62,11 +77,10 @@ ${distance} km
 💰 Fare:
 ₹${fare}
 
-Please contact the customer/driver for this booking.
-`.trim();
+Please contact the customer/driver for this booking.`;
 
     const response = await fetch(
-      `https://graph.facebook.com/vXX.X/${phoneNumberId}/messages`,
+      `https://graph.facebook.com/v26.0/${phoneNumberId}/messages`,
       {
         method: "POST",
 
@@ -77,9 +91,11 @@ Please contact the customer/driver for this booking.
 
         body: JSON.stringify({
           messaging_product: "whatsapp",
+          recipient_type: "individual",
           to: recipientNumber,
           type: "text",
           text: {
+            preview_url: false,
             body: message
           }
         })
@@ -88,14 +104,21 @@ Please contact the customer/driver for this booking.
 
     const data = await response.json();
 
+    console.log(
+      "WhatsApp Booking Response:",
+      data
+    );
+
     if (!response.ok) {
-      console.error("WhatsApp API Error:", data);
 
       return res.status(response.status).json({
         success: false,
-        message: "WhatsApp message failed",
+        message:
+          data?.error?.message ||
+          "WhatsApp message failed",
         error: data
       });
+
     }
 
     return res.status(200).json({
@@ -106,12 +129,17 @@ Please contact the customer/driver for this booking.
 
   } catch (error) {
 
-    console.error("Server Error:", error);
+    console.error(
+      "Booking Server Error:",
+      error
+    );
 
     return res.status(500).json({
       success: false,
       message: "Server error",
       error: error.message
     });
+
   }
+
 }
