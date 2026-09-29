@@ -81,7 +81,7 @@ body {
 .hero {
     text-align: center;
     padding: 55px 20px 35px;
-    background: #EOF2FE;
+    background: #135e96;
     background-color: rgba(0, 0, 0, 0.2);
 }
 
@@ -90,7 +90,7 @@ body {
 }
 
 #getLiftBtn:active {
-  transform: scale(0.95); /* Click karne par button thoda dabega */
+  transform: scale(0.95); 
 }
 
 .hero h1 {
