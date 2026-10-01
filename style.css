@@ -29,7 +29,7 @@ body {
     align-items: center;
     gap: 0;
 }
-.logo-img{height: 160px;max-width: auto;object-fit: contain;
+.logo-img{height: 170px;max-width: auto;object-fit: contain;
 }
 
 .logo-text {
@@ -63,6 +63,7 @@ body {
     font-size: 30px;
     cursor: pointer;
     display: inline-block;
+    align-item: right;
 }
 
 .call-btn:hover {
@@ -79,10 +80,10 @@ body {
 
 /* HERO */
 .hero {
+    background-image: url('images/aa.jpeg');
+    backgroundsize: cover;
     text-align: center;
     padding: 55px 20px 35px;
-    background-img: url('images/aa.jpeg');
-    backgroundsize: cover;
     align-item: center;
 }
 
@@ -536,13 +537,26 @@ footer p {
     box-sizing: border-box;
   }
 .header {
-   height:70px,width:350px;
-  .background-img {height:70px, width:350px;}
+   height: 70px,
+   width: 350px;
+  .background-img {
+      height:70px; 
+      width:350px;
+  }
    background-size: cover;
-  .logo-img {height:70px;width:auto;
+  .logo-img {
+    height: 70px;
+    width: auto;
    }
-  .call-btn {width:20px,font-size:10px}             
-  .QR-container img {height:70px; width:70px;}
+  .call-btn {
+      width:20px;
+      font-size:10px
+  }             
+  .QR-container img {
+      height:80px; 
+      width:80px;
+  }
+    
  }
   /* Hero Section */
   .hero {
