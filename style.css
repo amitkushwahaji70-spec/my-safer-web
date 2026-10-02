@@ -80,8 +80,6 @@ body {
 
 /* HERO */
 .hero {
-    background-image: url('images/aa.png');
-    backgroundsize: cover;
     text-align: center;
     padding: 55px 20px 35px;
     align-item: center;
@@ -275,6 +273,14 @@ body {
 
 
 /* COMMON SECTION */
+.header-section, .how-it-work-section {
+  background-image: url('images/aa.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+
 .section,
 .why-section {
     padding: 65px 6%;
