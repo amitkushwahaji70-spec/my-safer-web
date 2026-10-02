@@ -5,307 +5,463 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>saferसामान  | you tap ,we transport</title>
+    <title>saferसामान | you tap, we transport</title>
 
     <link rel="stylesheet" href="style.css">
 
     <!-- Leaflet CSS -->
-    <link rel="stylesheet"
-          href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    >
 </head>
 
 <body>
 
-    <!-- HEADER -->
+    <!-- =====================================================
+         HEADER
+    ====================================================== -->
     <header class="header">
-   <div class="logo-area">
-    <img src="images/saferसामान-logo.png" alt="saferसामान  Logo" class="logo-img"> 
-    <span style="font-size:40px;  color: white; font-weight:bold;">भाड़ा</span>
-</div>     
 
-    <div class="QR-container">
-      <img src="images/QR.png" alt="Scan QR" >
-    </div>
-      <button class="menu-btn">☰</button>
+        <div class="logo-area">
+            <img
+                src="images/saferसामान-logo.png"
+                alt="saferसामान Logo"
+                class="logo-img"
+            >
+
+            <span class="logo-bhada">भाड़ा</span>
+        </div>
+
+        <div class="QR-container">
+            <img
+                src="images/QR.png"
+                alt="Scan QR"
+            >
+        </div>
+
+        <button
+            class="menu-btn"
+            type="button"
+        >
+            ☰
+        </button>
+
     </header>
 
 
-<!-- HERO SECTION -->
-    <section class="hero">     
-  <div style="text-align: left; margin-left: 20px;">
-    <button id="getLiftBtn" onclick="sendLocation()" style="background: transparent; border: none; padding: 0; cursor: pointer;">
-     <img src="images/get-lift-btn.png" alt="Get Lift" style="width: 60px; height: auto; display: block;" />
-   </button>
-  </div>    
-    
-         9244130492
-       <div class="call-btn" text-align: right; id="callBtn">📞</div>
-        <h1>you tap, we transport</h1>
-
-        <p class="sub-tagline">
-           * उठाने और रखने का समाधान
-        </p>
+    <!-- =====================================================
+         MAIN BACKGROUND AREA
+         Hero + How It Works
+    ====================================================== -->
+    <main class="main-background">
 
 
-    <!-- BOOKING BOX -->
-    <div class="booking-box">
+        <!-- =================================================
+             HERO
+        ================================================== -->
+        <section class="hero">
 
-        <!-- CURRENT LOCATION -->
-        <div class="location-input">
+            <!-- TOP ACTIONS -->
+            <div class="hero-top">
 
-            <span class="location-dot">●</span>
+                <!-- LEFT: SEND LOCATION / GET LIFT -->
+                <div class="hero-left">
 
-            <input
-                type="text"
-                id="pickup"
-                placeholder="your current location"
-            >
-         <button id="locationBtn" class="location-btn" title="Use My Location">📍</button>   
-  
-        </div>
+                    <button
+                        id="getLiftBtn"
+                        class="get-lift-btn"
+                        type="button"
+                        onclick="sendLocation()"
+                    >
+                        <img
+                            src="images/get-lift-btn.png"
+                            alt="Send Location / Get Lift"
+                        >
+                    </button>
+
+                </div>
 
 
-        <!-- TO -->
-        <div class="to-text">⬇️ To</div>
+                <!-- RIGHT: NUMBER + CALL -->
+                <div class="hero-right">
+
+                    <a
+                        href="tel:9244130492"
+                        class="phone-number"
+                    >
+                        9244130492
+                    </a>
+
+                    <button
+                        class="call-btn"
+                        id="callBtn"
+                        type="button"
+                        aria-label="Call"
+                    >
+                        📞
+                    </button>
+
+                </div>
+
+            </div>
 
 
-        <!-- DESTINATION -->
-        <div class="destination-row">
+            <!-- HERO TITLE -->
+            <h1>
+                you tap, we transport
+            </h1>
 
-            <div class="location-input destination">
-              
-                <span class="destination-dot">●</span>
+            <p class="sub-tagline">
+                * उठाने और रखने का समाधान
+            </p>
 
-                <input
-                    type="text"
-                    id="drop"
-                    placeholder="कहाँ जाना है? (drop location)"
-                >
 
+            <!-- =================================================
+                 BOOKING BOX
+            ================================================== -->
+            <div class="booking-box">
+
+                <!-- CURRENT LOCATION -->
+                <div class="location-input">
+
+                    <span class="location-dot">●</span>
+
+                    <input
+                        type="text"
+                        id="pickup"
+                        placeholder="your current location"
+                    >
+
+                    <button
+                        id="locationBtn"
+                        class="location-btn"
+                        type="button"
+                        title="Use My Location"
+                    >
+                        📍
+                    </button>
+
+                </div>
+
+
+                <!-- TO -->
+                <div class="to-text">
+                    ⬇️ To
+                </div>
+
+
+                <!-- DESTINATION -->
+                <div class="destination-row">
+
+                    <div class="location-input destination">
+
+                        <span class="destination-dot">●</span>
+
+                        <input
+                            type="text"
+                            id="drop"
+                            placeholder="कहाँ जाना है? (drop location)"
+                        >
+
+                        <button
+                            class="mic-btn"
+                            id="micBtn"
+                            type="button"
+                            title="माइक्रोफोन से बताएं"
+                        >
+                            🎙️
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <!-- BOOK NOW -->
                 <button
-                    class="mic-btn"
-                    id="micBtn"
-                    title="माइक्रोफोन से बताएं"
+                    class="book-btn"
+                    id="bookBtn"
+                    type="button"
                 >
-                    🎙️
+                    Book Now
                 </button>
 
             </div>
 
 
-        <!-- BOOK NOW -->
-        <button class="book-btn" id="bookBtn">
-            Book Now
-        </button>
+            <!-- =================================================
+                 FARE PREVIEW
+            ================================================== -->
+            <div
+                class="fare-box"
+                id="fareBox"
+            >
 
-    </div>
+                <div>
+                    <span>Distance</span>
+                    <strong id="distance">-- km</strong>
+                </div>
 
+                <div>
+                    <span>Estimated Fare</span>
+                    <strong id="fare">₹--</strong>
+                </div>
 
-</div>   
-    
-        <!-- FARE PREVIEW -->
-        <div class="fare-box" id="fareBox">
-
-            <div>
-                <span>Distance</span>
-                <strong id="distance">-- km</strong>
             </div>
 
-            <div>
-                <span>Estimated Fare</span>
-                <strong id="fare">₹--</strong>
+        </section>
+
+
+        <!-- =====================================================
+             BOOKING CONFIRMATION
+        ====================================================== -->
+        <div
+            class="booking-confirmation"
+            id="bookingConfirmation"
+        >
+
+            <h3>Confirm Your Booking</h3>
+
+            <div class="confirm-row">
+                <span>📍 Pickup</span>
+                <strong id="confirmPickup">--</strong>
+            </div>
+
+            <div class="confirm-row">
+                <span>⬇️ Destination</span>
+                <strong id="confirmDrop">--</strong>
+            </div>
+
+            <div class="confirm-row">
+                <span>📏 Distance</span>
+                <strong id="confirmDistance">--</strong>
+            </div>
+
+            <div class="confirm-row">
+                <span>💰 Estimated Fare</span>
+                <strong id="confirmFare">--</strong>
+            </div>
+
+            <div class="confirm-actions">
+
+                <button
+                    id="editBookingBtn"
+                    class="edit-booking-btn"
+                    type="button"
+                >
+                    Edit Booking
+                </button>
+
+                <button
+                    id="confirmBookingBtn"
+                    class="confirm-booking-btn"
+                    type="button"
+                >
+                    Confirm Booking
+                </button>
+
             </div>
 
         </div>
 
-    </section>
-  
-   <!-- ===================================
-     BOOKING CONFIRMATION
-=================================== -->
 
-<div class="booking-confirmation" id="bookingConfirmation">
+        <!-- =====================================================
+             HOW IT WORKS
+        ====================================================== -->
+        <section class="how-it-work-box">
 
-    <h3>Confirm Your Booking</h3>
-
-    <div class="confirm-row">
-        <span>📍 Pickup</span>
-        <strong id="confirmPickup">--</strong>
-    </div>
-
-    <div class="confirm-row">
-        <span>⬇️ Destination</span>
-        <strong id="confirmDrop">--</strong>
-    </div>
-
-    <div class="confirm-row">
-        <span>📏 Distance</span>
-        <strong id="confirmDistance">--</strong>
-    </div>
-
-    <div class="confirm-row">
-        <span>💰 Estimated Fare</span>
-        <strong id="confirmFare">--</strong>
-    </div>
-
-    <div class="confirm-actions">
-
-        <button
-            id="editBookingBtn"
-            class="edit-booking-btn">
-            Edit Booking
-        </button>
-
-        <button
-            id="confirmBookingBtn"
-            class="confirm-booking-btn">
-            Confirm Booking
-        </button>
-
-    </div>
-
-</div>
-
-    <!-- BOOKING LINE -->
-    
-      
+            <h2>How It Works</h2>
 
 
-    <div class="how-it-work-box">
-  <h2>How It Work</h2>
+            <!-- STEP 1 -->
+            <div class="step-item">
 
-  <!-- Step 1 -->
-  <div class="step-item">
-    <div class="circle">1</div>
-    <span class="step-text"><strong>Location</strong> (वर्तमान location शेयर करे)</span>
-  </div>
+                <div class="circle">
+                    1
+                </div>
 
-  <div class="dot-line">
-    <span>.</span>
-    <span>.</span>
-    <span>.</span>
-    <span>.</span>
-  </div>
+                <span class="step-text">
+                    <strong>Location</strong>
+                    (वर्तमान location शेयर करें)
+                </span>
 
-  <!-- Step 2 -->
-  <div class="step-item">
-    <div class="circle">2</div>
-    <span class="step-text"><strong>Destination</strong> (जाने की जगह बताएं)</span>
-  </div>
-
-  <div class="dot-line">
-    <span>.</span>
-    <span>.</span>
-    <span>.</span>
-    <span>.</span>
-  </div>
-
-  <!-- Step 3 -->
-  <div class="step-item">
-    <div class="circle">3</div>
-    <span class="step-text"><strong>Booking Done ✓</strong></span>
-  </div>
-</div>
-
-<style>
-  .how-it-work-box {
-    font-family: Arial, sans-serif;
-    padding: 20px;
-  }
-
-  .step-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  /* Circle Styling */
-  .circle {
-    width: 28px;
-    height: 28px;
-    border: 2px solid #333;
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-weight: bold;
-    font-size: 15px;
-  }
-
-  .step-text {
-    font-size: 16px;
-  }
-
-  /* Vertical Dots Alignment */
-  .dot-line {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 28px; /* Circle ke center me align rakhne ke liye */
-    margin: 4px 0;
-    line-height: 8px;
-    color: #666;
-    font-weight: bold;
-  }
-</style>
+            </div>
 
 
-    <!-- Why only saferसामान  -->
+            <div class="dot-line">
+                <span>•</span>
+                <span>•</span>
+                <span>•</span>
+                <span>•</span>
+            </div>
+
+
+            <!-- STEP 2 -->
+            <div class="step-item">
+
+                <div class="circle">
+                    2
+                </div>
+
+                <span class="step-text">
+                    <strong>Destination</strong>
+                    (जाने की जगह बताएं)
+                </span>
+
+            </div>
+
+
+            <div class="dot-line">
+                <span>•</span>
+                <span>•</span>
+                <span>•</span>
+                <span>•</span>
+            </div>
+
+
+            <!-- STEP 3 -->
+            <div class="step-item">
+
+                <div class="circle">
+                    3
+                </div>
+
+                <span class="step-text">
+                    <strong>Booking Done ✓</strong>
+                </span>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- =====================================================
+         FEATURES
+    ====================================================== -->
     <section class="why-section">
 
-        <h2>Our Features service </h2>
+        <h2>Our Features Service</h2>
 
         <div class="features">
 
-            <div class="feature">
-                <img src="images/pick-place.jpg" alt="pick and place solution">
-                <h3>pick & place solution</h3>
-                <p>उठाने और रखने का समाधान।</p>
-            </div> 
 
-             <div class ="feature">
-                <img src="images/auto.jpeg" alt="auto">
-                <h3>.............</h3>
-                <p>india's कोने-कोने मे उपलब्ध <p>
-            </div>
-            
+            <!-- FEATURE 1 -->
             <div class="feature">
-                <img src="images/budgut.jpeg" alt="budgut friendly">
-                <h3>budgut friendly</h3>
-                <p>lowest cost</p>
+
+                <img
+                    src="images/pick-place.jpg"
+                    alt="Pick and Place Solution"
+                >
+
+                <h3>
+                    Pick &amp; Place Solution
+                </h3>
+
+                <p>
+                    उठाने और रखने का समाधान।
+                </p>
+
             </div>
 
+
+            <!-- FEATURE 2 -->
             <div class="feature">
-                <img src="images/easy.png" alt="easy">
-                <h3>Easy & Fast booking</h3>
-                <p>one click बुकिंग </p>
+
+                <img
+                    src="images/auto.jpeg"
+                    alt="Auto Service"
+                >
+
+                <h3>
+                    Auto Service
+                </h3>
+
+                <p>
+                    India's कोने-कोने में उपलब्ध
+                </p>
+
             </div>
-          
+
+
+            <!-- FEATURE 3 -->
+            <div class="feature">
+
+                <img
+                    src="images/budgut.jpeg"
+                    alt="Budget Friendly"
+                >
+
+                <h3>
+                    Budget Friendly
+                </h3>
+
+                <p>
+                    Lowest Cost
+                </p>
+
+            </div>
+
+
+            <!-- FEATURE 4 -->
+            <div class="feature">
+
+                <img
+                    src="images/easy.png"
+                    alt="Easy Booking"
+                >
+
+                <h3>
+                    Easy &amp; Fast Booking
+                </h3>
+
+                <p>
+                    One Click बुकिंग
+                </p>
+
+            </div>
+
         </div>
 
     </section>
 
 
-    <!-- DRIVER SECTION -->
+    <!-- =====================================================
+         DRIVER SECTION
+    ====================================================== -->
     <section class="driver-section">
 
-        <h2>ऑटो ड्राइवर हैं?</h2>
+        <h2>
+            ऑटो ड्राइवर हैं?
+        </h2>
 
-           <p> saferसामान से जुड़ें और ज्यादा बुकिंग प्राप्त करें।<p>
-              <p>wtsp on.-  9244130492<p>
-        <button class="driver-btn">
+        <p>
+            saferसामान से जुड़ें और ज्यादा बुकिंग प्राप्त करें।
+        </p>
+
+        <p>
+            WhatsApp No. - 9244130492
+        </p>
+
+        <button
+            class="driver-btn"
+            type="button"
+        >
             Driver Partner बनें
         </button>
 
     </section>
 
 
-    <!-- FOOTER -->
+    <!-- =====================================================
+         FOOTER
+    ====================================================== -->
     <footer>
 
         <div class="footer-logo">
-            safer<b>सामान </b>
+            safer<b>सामान</b>
         </div>
 
         <p>
@@ -318,20 +474,21 @@
             <a href="#">Privacy</a>
             <a href="#">Terms</a>
         </div>
+
         <p class="copyright">
-            © 2026 saferसामान . All rights reserved.
+            © 2026 saferसामान. All rights reserved.
         </p>
 
     </footer>
 
-    
-    <!-- LEAFLET JS -->
+
+    <!-- =====================================================
+         LEAFLET JS
+    ====================================================== -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <!-- YOUR JS -->
-    <script src="script.js"></script> 
-   
+    <script src="script.js"></script>
 
 </body>
 </html>
-
