@@ -1,10 +1,12 @@
 /* =========================================================
-   safer saman - CLEAN RESPONSIVE CSS
-   ========================================================= */
+   SAFER SAMAAN
+   CLEAN RESPONSIVE CSS
+========================================================= */
 
-/* =========================
+
+/* =========================================================
    RESET
-   ========================= */
+========================================================= */
 
 * {
     margin: 0;
@@ -37,59 +39,51 @@ button {
 
 /* =========================================================
    HEADER
-   ========================================================= */
+========================================================= */
 
 .header {
     width: 100%;
-    min-height: 200px;
-
-    background-image: url("images/bridge2.png");
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
+    height: 150px;
 
     display: flex;
     align-items: center;
     justify-content: space-between;
 
-    padding: 0 2%;
+    padding: 0 25px;
 
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+    background: #102a56;
+
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+
+    position: relative;
+    z-index: 10;
 }
+
+
+/* LOGO */
 
 .logo-area {
     display: flex;
     align-items: center;
-    gap: 0;
+    gap: 5px;
 }
 
 .logo-img {
-    height: 170px;
+    height: 125px;
     width: auto;
     max-width: 100%;
     object-fit: contain;
 }
 
-.logo-text {
-    font-size: 30px;
-    font-weight: 800;
-    color: yellow;
-}
-
-.logo-text b {
-    color: yellow;
-}
-
-.logo-area small {
-    color: transparent;
-    font-size: 13px;
+.logo-bhada {
+    color: #ffffff;
+    font-size: 40px;
     font-weight: bold;
+    white-space: nowrap;
 }
 
 
-/* =========================
-   QR CODE
-   ========================= */
+/* QR */
 
 .QR-container {
     display: flex;
@@ -98,137 +92,245 @@ button {
 }
 
 .QR-container img {
-    width: 150px;
-    height: 150px;
+    width: 110px;
+    height: 110px;
     object-fit: contain;
-    border: 0;
 }
 
 
-/* =========================
-   CALL BUTTON
-   ========================= */
-
-.call-btn {
-    width: 45px;
-    height: 45px;
-
-    border: none;
-    border-radius: 8px;
-
-    background: transparent;
-    color: #000000;
-
-    font-size: 30px;
-    cursor: pointer;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    transition: opacity 0.2s ease,
-                transform 0.2s ease;
-}
-
-.call-btn:hover {
-    opacity: 0.8;
-}
-
-.call-btn:active {
-    transform: scale(0.95);
-}
-
-
-/* =========================
-   MENU BUTTON
-   ========================= */
+/* MENU */
 
 .menu-btn {
     border: none;
     background: transparent;
+    color: #ffffff;
 
-    font-size: 25px;
-    cursor: pointer;
+    font-size: 28px;
+
+    padding: 5px;
+}
+
+
+/* =========================================================
+   MAIN BACKGROUND
+   Same aa.png is used for Hero + How It Works
+========================================================= */
+
+.main-background {
+    position: relative;
+
+    background-image: url("images/aa.png");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    /*
+       One background layer behind both sections.
+       It does NOT create separate aa.png images
+       for Hero and How It Works.
+    */
+
+    isolation: isolate;
+}
+
+.main-background::before {
+    content: "";
+
+    position: absolute;
+    inset: 0;
+
+    background: rgba(0, 0, 0, 0.10);
+
+    pointer-events: none;
+
+    z-index: -1;
 }
 
 
 /* =========================================================
    HERO
-   ========================================================= */
+========================================================= */
 
 .hero {
     width: 100%;
+
+    min-height: 650px;
+
+    padding: 25px 20px 35px;
+
     text-align: center;
 
-    padding: 55px 20px 35px;
+    position: relative;
 
     display: flex;
     flex-direction: column;
     align-items: center;
+
+    background: transparent;
 }
+
+
+/* =========================================================
+   HERO TOP
+   LEFT = GET LIFT
+   RIGHT = NUMBER + CALL
+========================================================= */
+
+.hero-top {
+    width: 100%;
+    max-width: 1200px;
+
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    position: relative;
+
+    margin-bottom: 10px;
+}
+
+
+/* LEFT */
+
+.hero-left {
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+
+    text-align: left;
+}
+
+.get-lift-btn {
+    width: 60px;
+
+    border: none;
+    background: transparent;
+
+    padding: 0;
+
+    display: block;
+}
+
+.get-lift-btn img {
+    width: 60px;
+    height: auto;
+
+    display: block;
+}
+
+.get-lift-btn:active {
+    transform: scale(0.95);
+}
+
+
+/* RIGHT */
+
+.hero-right {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+
+    gap: 10px;
+
+    text-align: right;
+}
+
+.phone-number {
+    color: #ffffff;
+
+    font-size: 22px;
+    font-weight: bold;
+
+    text-decoration: none;
+
+    white-space: nowrap;
+}
+
+.call-btn {
+    width: 48px;
+    height: 48px;
+
+    border: none;
+    border-radius: 50%;
+
+    background: #ffffff;
+    color: #102a56;
+
+    font-size: 25px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.18);
+
+    transition:
+        transform 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+.call-btn:hover {
+    transform: scale(1.05);
+}
+
+.call-btn:active {
+    transform: scale(0.94);
+}
+
+
+/* =========================================================
+   HERO TITLE
+========================================================= */
 
 .hero h1 {
-    font-size: 35px;
-    line-height: 1.2;
-    color: orange;
-}
+    margin-top: 15px;
 
-.hero h1 span {
-    color: #f58220;
+    font-size: 38px;
+    line-height: 1.2;
+
+    color: #ff8a00;
+
+    font-weight: 800;
 }
 
 .sub-tagline {
-    margin-top: 12px;
+    margin-top: 10px;
+
     font-size: 18px;
-    color: white;
-}
+    font-weight: 600;
 
-
-/* =========================
-   GET LIFT BUTTON
-   ========================= */
-
-#getLiftBtn {
-    transition: transform 0.1s ease-in-out;
-}
-
-#getLiftBtn:active {
-    transform: scale(0.95);
+    color: #ffffff;
 }
 
 
 /* =========================================================
    BOOKING BOX
-   ========================================================= */
+========================================================= */
 
 .booking-box {
     width: 90%;
-    max-width: 900px;
+    max-width: 850px;
 
-    margin: 0 auto;
-    padding: 20px;
+    margin-top: 30px;
 
-    border-radius: 12px;
+    padding: 22px;
 
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
-}
+    background: rgba(255, 255, 255, 0.96);
 
-.booking-box h2 {
-    margin-bottom: 18px;
+    border-radius: 16px;
 
-    text-align: left;
-
-    color: #102a56;
+    box-shadow:
+        0 8px 30px rgba(0, 0, 0, 0.15);
 }
 
 
 /* =========================================================
    LOCATION INPUT
-   ========================================================= */
+========================================================= */
 
 .location-input {
     width: 100%;
-    height: 50px;
+    height: 52px;
 
     border: 2px solid #d8dee8;
     border-radius: 12px;
@@ -236,17 +338,20 @@ button {
     display: flex;
     align-items: center;
 
-    padding: 0 15px;
+    padding: 0 14px;
 
     background: #fafbfc;
 
-    transition: border-color 0.2s ease,
-                box-shadow 0.2s ease;
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
 }
 
 .location-input:focus-within {
     border-color: #f58220;
-    box-shadow: 0 0 0 3px rgba(245, 130, 32, 0.1);
+
+    box-shadow:
+        0 0 0 3px rgba(245, 130, 32, 0.12);
 }
 
 .location-input input {
@@ -262,24 +367,57 @@ button {
     font-size: 15px;
 
     margin-left: 10px;
+
+    color: #17233c;
+}
+
+.location-input input::placeholder {
+    color: #777777;
 }
 
 .location-dot {
     color: #f58220;
+    font-size: 14px;
 }
 
 .destination-dot {
     color: #102a56;
+    font-size: 14px;
 }
 
-#locationStatus {
-    font-size: 18px;
+
+/* LOCATION BUTTON */
+
+.location-btn {
+    border: none;
+    background: transparent;
+
+    font-size: 20px;
+
+    padding: 5px;
+
+    cursor: pointer;
+}
+
+
+/* =========================================================
+   TO
+========================================================= */
+
+.to-text {
+    margin: 10px 0;
+
+    text-align: left;
+
+    color: #102a56;
+
+    font-weight: bold;
 }
 
 
 /* =========================================================
    DESTINATION
-   ========================================================= */
+========================================================= */
 
 .destination-row {
     width: 100%;
@@ -288,8 +426,6 @@ button {
     align-items: stretch;
 
     gap: 12px;
-
-    margin-top: 12px;
 }
 
 .destination {
@@ -297,15 +433,18 @@ button {
     min-width: 0;
 }
 
+
+/* MICROPHONE */
+
 .mic-btn {
     border: none;
     background: transparent;
 
     font-size: 20px;
 
-    cursor: pointer;
-
     padding: 5px;
+
+    cursor: pointer;
 }
 
 .mic-btn:hover {
@@ -313,9 +452,7 @@ button {
 }
 
 
-/* =========================
-   LISTENING STATE
-   ========================= */
+/* LISTENING */
 
 .listening {
     background-color: red !important;
@@ -330,13 +467,14 @@ button {
 
 
 /* =========================================================
-   BOOK BUTTON
-   ========================================================= */
+   BOOK NOW
+========================================================= */
 
 .book-btn {
-    width: 40%;
-    min-width: 180px;
-    height: 58px;
+    width: 45%;
+    min-width: 190px;
+
+    height: 55px;
 
     margin-top: 18px;
 
@@ -346,13 +484,12 @@ button {
     background: #102a56;
     color: #ffffff;
 
-    font-size: 19px;
+    font-size: 18px;
     font-weight: bold;
 
-    cursor: pointer;
-
-    transition: background 0.2s ease,
-                transform 0.15s ease;
+    transition:
+        background 0.2s ease,
+        transform 0.15s ease;
 }
 
 .book-btn:hover {
@@ -366,32 +503,34 @@ button {
 
 /* =========================================================
    FARE
-   ========================================================= */
+========================================================= */
 
 .fare-box {
-    width: 100%;
-    max-width: 850px;
+    width: 90%;
+    max-width: 700px;
 
-    height: auto;
+    margin-top: 18px;
 
-    margin: 15px auto 0;
     padding: 15px;
-
-    background: transparent;
-    border-radius: 14px;
 
     display: flex;
     justify-content: space-around;
     align-items: center;
 
-    gap: 20px;
+    gap: 25px;
+
+    background: rgba(255, 255, 255, 0.90);
+
+    border-radius: 14px;
+
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
 }
 
 .fare-box div {
     display: flex;
     flex-direction: column;
 
-    gap: 6px;
+    gap: 5px;
 
     text-align: center;
 }
@@ -408,331 +547,8 @@ button {
 
 
 /* =========================================================
-   QUICK BOOK
-   ========================================================= */
-
-.quick-book {
-    width: 90%;
-    max-width: 850px;
-
-    margin: 25px auto;
-
-    background: #eef3f9;
-
-    padding: 20px;
-
-    border-radius: 15px;
-
-    display: flex;
-    align-items: center;
-
-    gap: 15px;
-
-    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06);
-}
-
-.quick-book-icon {
-    width: 50px;
-    height: 50px;
-
-    flex-shrink: 0;
-
-    border-radius: 50%;
-
-    background: #f58220;
-    color: #ffffff;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    font-size: 23px;
-}
-
-.quick-book strong {
-    color: #102a56;
-    font-size: 18px;
-}
-
-.quick-book p {
-    color: #666666;
-    margin-top: 4px;
-}
-
-
-/* =========================================================
-   COMMON BACKGROUND SECTIONS
-   ========================================================= */
-
-.header-section,
-.how-it-work-section {
-    background-image: url("images/aa.png");
-
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-}
-
-
-/* =========================================================
-   COMMON SECTIONS
-   ========================================================= */
-
-.section,
-.why-section {
-    width: 100%;
-
-    padding: 65px 6%;
-
-    text-align: center;
-}
-
-.section h2,
-.why-section h2 {
-    font-size: 32px;
-
-    color: #102a56;
-
-    margin-bottom: 35px;
-}
-
-
-/* =========================================================
-   HOW IT WORKS
-   ========================================================= */
-
-.steps {
-    width: 100%;
-    max-width: 1100px;
-
-    margin: 0 auto;
-
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-
-    gap: 20px;
-}
-
-.step {
-    background: #eef3f9;
-
-    padding: 25px 15px;
-
-    border-radius: 15px;
-
-    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06);
-
-    transition: transform 0.2s ease,
-                box-shadow 0.2s ease;
-}
-
-.step:hover {
-    transform: translateY(-3px);
-
-    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.08);
-}
-
-.step-number {
-    width: 45px;
-    height: 45px;
-
-    margin: 0 auto;
-
-    border-radius: 50%;
-
-    background: #f58220;
-    color: #ffffff;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    font-weight: bold;
-    font-size: 18px;
-}
-
-.step h3 {
-    margin-top: 15px;
-    color: #102a56;
-}
-
-.step p {
-    margin-top: 8px;
-
-    color: #666666;
-
-    font-size: 14px;
-}
-
-
-/* =========================================================
-   WHY safer saman
-   ========================================================= */
-
-.why-section {
-    background: #eef3f9;
-}
-
-.features {
-    width: 100%;
-    max-width: 1100px;
-
-    margin: 0 auto;
-
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-
-    gap: 20px;
-}
-
-.feature {
-    background: #ffffff;
-
-    padding: 25px 18px;
-
-    border-radius: 15px;
-
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
-}
-
-.features img {
-    width: 100%;
-    height: 200px;
-
-    object-fit: cover;
-
-    border-radius: 8px;
-}
-
-.feature span {
-    font-size: 30px;
-}
-
-.feature h3 {
-    margin-top: 12px;
-
-    color: #102a56;
-}
-
-.feature p {
-    margin-top: 8px;
-
-    color: #666666;
-
-    font-size: 14px;
-}
-
-
-/* =========================================================
-   DRIVER SECTION
-   ========================================================= */
-
-.driver-section {
-    width: 100%;
-
-    text-align: center;
-
-    padding: 30px 10px;
-
-    background: #102a56;
-
-    color: #ffffff;
-}
-
-.driver-section h2 {
-    font-size: 30px;
-}
-
-.driver-section p {
-    margin: 12px 0 22px;
-}
-
-.driver-btn {
-    padding: 12px 20px;
-
-    border: none;
-    border-radius: 8px;
-
-    background: #f58220;
-    color: #ffffff;
-
-    font-size: 15px;
-    font-weight: bold;
-
-    cursor: pointer;
-
-    transition: background 0.2s ease,
-                transform 0.15s ease;
-}
-
-.driver-btn:hover {
-    background: #e47110;
-}
-
-.driver-btn:active {
-    transform: scale(0.97);
-}
-
-
-/* =========================================================
-   FOOTER
-   ========================================================= */
-
-footer {
-    width: 100%;
-
-    background: #0b1933;
-
-    color: #ffffff;
-
-    text-align: center;
-
-    padding: 40px 20px;
-}
-
-.footer-logo {
-    font-size: 28px;
-    font-weight: bold;
-}
-
-.footer-logo b {
-    color: #f58220;
-}
-
-footer p {
-    margin-top: 10px;
-    color: #c5ccda;
-}
-
-.footer-links {
-    margin-top: 20px;
-}
-
-.footer-links a {
-    color: #ffffff;
-
-    text-decoration: none;
-
-    margin: 0 10px;
-
-    font-size: 14px;
-
-    transition: color 0.2s ease;
-}
-
-.footer-links a:hover {
-    color: #f58220;
-}
-
-.copyright {
-    font-size: 12px;
-    margin-top: 25px;
-}
-
-
-/* =========================================================
    BOOKING CONFIRMATION
-   ========================================================= */
+========================================================= */
 
 .booking-confirmation {
     display: none;
@@ -748,7 +564,8 @@ footer p {
 
     border-radius: 18px;
 
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+    box-shadow:
+        0 8px 25px rgba(0, 0, 0, 0.12);
 }
 
 .booking-confirmation.show {
@@ -756,11 +573,11 @@ footer p {
 }
 
 .booking-confirmation h3 {
-    margin-top: 0;
-
     text-align: center;
 
     font-size: 24px;
+
+    margin-bottom: 10px;
 }
 
 .confirm-row {
@@ -804,10 +621,10 @@ footer p {
     border: none;
     border-radius: 10px;
 
-    cursor: pointer;
-
     font-size: 16px;
     font-weight: bold;
+
+    cursor: pointer;
 }
 
 .edit-booking-btn {
@@ -820,195 +637,453 @@ footer p {
     color: #ffffff;
 }
 
-.edit-booking-btn:hover {
-    background: #dddddd;
+
+/* =========================================================
+   HOW IT WORKS
+   Background transparent because parent has aa.png
+========================================================= */
+
+.how-it-work-box {
+    width: 100%;
+
+    max-width: 850px;
+
+    margin: 0 auto;
+
+    padding: 55px 25px 65px;
+
+    background: transparent;
+
+    font-family: Arial, sans-serif;
 }
 
-.confirm-booking-btn:hover {
-    background: #222222;
+.how-it-work-box h2 {
+    margin-bottom: 35px;
+
+    text-align: center;
+
+    font-size: 32px;
+
+    color: #ffffff;
+}
+
+
+/* STEP */
+
+.step-item {
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    width: 100%;
+}
+
+.circle {
+    width: 38px;
+    height: 38px;
+
+    flex-shrink: 0;
+
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+
+    background: rgba(255, 255, 255, 0.95);
+
+    color: #102a56;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.step-text {
+    font-size: 17px;
+
+    color: #ffffff;
+
+    text-shadow:
+        0 1px 3px rgba(0, 0, 0, 0.45);
+}
+
+.step-text strong {
+    font-weight: bold;
+}
+
+
+/* DOT LINE */
+
+.dot-line {
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    width: 38px;
+
+    margin: 5px 0;
+
+    line-height: 8px;
+
+    color: #ffffff;
+
+    font-weight: bold;
+}
+
+
+/* =========================================================
+   FEATURES
+========================================================= */
+
+.why-section {
+    width: 100%;
+
+    padding: 60px 6%;
+
+    text-align: center;
+
+    background: #eef3f9;
+}
+
+.why-section h2 {
+    font-size: 32px;
+
+    color: #102a56;
+
+    margin-bottom: 35px;
+}
+
+.features {
+    width: 100%;
+    max-width: 1100px;
+
+    margin: 0 auto;
+
+    display: grid;
+
+    grid-template-columns: repeat(4, 1fr);
+
+    gap: 20px;
+}
+
+.feature {
+    background: #ffffff;
+
+    padding: 20px;
+
+    border-radius: 15px;
+
+    box-shadow:
+        0 4px 15px rgba(0, 0, 0, 0.06);
+}
+
+.feature img {
+    width: 100%;
+    height: 190px;
+
+    object-fit: cover;
+
+    border-radius: 10px;
+}
+
+.feature h3 {
+    margin-top: 12px;
+
+    color: #102a56;
+
+    font-size: 18px;
+}
+
+.feature p {
+    margin-top: 8px;
+
+    color: #666666;
+
+    font-size: 14px;
+}
+
+
+/* =========================================================
+   DRIVER SECTION
+========================================================= */
+
+.driver-section {
+    width: 100%;
+
+    text-align: center;
+
+    padding: 35px 15px;
+
+    background: #102a56;
+
+    color: #ffffff;
+}
+
+.driver-section h2 {
+    font-size: 30px;
+}
+
+.driver-section p {
+    margin-top: 10px;
+}
+
+.driver-btn {
+    margin-top: 20px;
+
+    padding: 12px 20px;
+
+    border: none;
+    border-radius: 8px;
+
+    background: #f58220;
+    color: #ffffff;
+
+    font-size: 15px;
+    font-weight: bold;
+
+    cursor: pointer;
+}
+
+.driver-btn:hover {
+    background: #e47110;
+}
+
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+footer {
+    width: 100%;
+
+    background: #0b1933;
+
+    color: #ffffff;
+
+    text-align: center;
+
+    padding: 40px 20px;
+}
+
+.footer-logo {
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.footer-logo b {
+    color: #f58220;
+}
+
+footer p {
+    margin-top: 10px;
+
+    color: #c5ccda;
+}
+
+.footer-links {
+    margin-top: 20px;
+}
+
+.footer-links a {
+    color: #ffffff;
+
+    text-decoration: none;
+
+    margin: 0 10px;
+
+    font-size: 14px;
+}
+
+.footer-links a:hover {
+    color: #f58220;
+}
+
+.copyright {
+    font-size: 12px;
+
+    margin-top: 25px;
 }
 
 
 /* =========================================================
    TABLET
-   ========================================================= */
+========================================================= */
 
 @media (max-width: 900px) {
 
     .header {
-        min-height: 140px;
+        height: 120px;
+
+        padding: 0 15px;
     }
 
     .logo-img {
-        height: 120px;
+        height: 100px;
+    }
+
+    .logo-bhada {
+        font-size: 30px;
     }
 
     .QR-container img {
-        width: 110px;
-        height: 110px;
+        width: 85px;
+        height: 85px;
     }
 
-    .steps,
     .features {
         grid-template-columns: repeat(2, 1fr);
     }
 
     .booking-box {
-        width: 92%;
+        width: 94%;
     }
-
 }
 
 
 /* =========================================================
    MOBILE
-   ========================================================= */
+========================================================= */
 
-@media (max-width: 769px) {
-
-    body {
-        width: 100%;
-    }
-
+@media (max-width: 768px) {
 
     /* HEADER */
 
     .header {
         width: 100%;
-        min-height: 70px;
-        height: 70px;
+        height: 72px;
+        min-height: 72px;
 
-        padding: 0 10px;
+        padding: 0 8px;
 
-        background-size: cover;
-        background-position: center;
+        overflow: hidden;
     }
 
     .logo-area {
-        max-width: 70%;
+        gap: 2px;
+
+        max-width: 62%;
     }
 
     .logo-img {
-        height: 70px;
+        height: 62px;
         width: auto;
     }
 
-    .logo-text {
+    .logo-bhada {
         font-size: 20px;
     }
 
-    .logo-area small {
-        display: none;
-    }
-
     .QR-container img {
-        width: 80px;
-        height: 80px;
+        width: 55px;
+        height: 55px;
     }
 
-    .call-btn {
-        width: 42px;
-        height: 42px;
-
-        font-size: 22px;
+    .menu-btn {
+        font-size: 23px;
     }
 
 
     /* HERO */
 
     .hero {
-        width: 100%;
+        min-height: auto;
 
-        padding: 20px 10px;
-
-        overflow: hidden;
-
-        display: flex;
-        flex-direction: column;
-        align-items: center;
+        padding: 15px 10px 30px;
     }
 
+
+    /* HERO TOP */
+
+    .hero-top {
+        width: 100%;
+
+        align-items: flex-start;
+
+        margin-bottom: 5px;
+    }
+
+    .get-lift-btn,
+    .get-lift-btn img {
+        width: 55px;
+    }
+
+    .hero-right {
+        gap: 6px;
+    }
+
+    .phone-number {
+        font-size: 16px;
+    }
+
+    .call-btn {
+        width: 40px;
+        height: 40px;
+
+        font-size: 21px;
+    }
+
+
+    /* TITLE */
+
     .hero h1 {
-        font-size: 31px;
+        margin-top: 15px;
+
+        font-size: 28px;
     }
 
     .sub-tagline {
-        font-size: 16px;
+        font-size: 15px;
     }
 
 
     /* BOOKING */
 
     .booking-box {
-        width: 92%;
-        max-width: 100%;
+        width: 96%;
 
-        margin: 0 auto;
+        margin-top: 22px;
 
-        padding: 18px;
+        padding: 15px;
+
+        border-radius: 14px;
     }
-
-    .booking-box h2 {
-        font-size: 22px;
-    }
-
-
-    /* LOCATION */
 
     .location-input {
-        height: 50px;
+        height: 48px;
 
-        padding: 0 12px;
+        padding: 0 10px;
     }
 
     .location-input input {
         font-size: 14px;
     }
 
-
-    /* DESTINATION */
-
-    .destination-row {
-        width: 100%;
-
-        flex-direction: column;
-
-        gap: 8px;
+    .to-text {
+        margin: 9px 0;
     }
-
-    .destination {
-        width: 100%;
-    }
-
-    .destination-row input,
-    .destination-row select {
-        width: 100%;
-    }
-
-
-    /* MIC */
-
-    .mic-btn {
-        font-size: 19px;
-    }
-
-
-    /* BOOK BUTTON */
 
     .book-btn {
         width: 100%;
+
         min-width: 0;
+
+        height: 52px;
     }
 
 
     /* FARE */
 
     .fare-box {
-        width: 100%;
+        width: 96%;
 
-        margin: 10px auto;
+        margin-top: 12px;
 
-        padding: 10px;
+        padding: 12px;
 
         gap: 10px;
     }
@@ -1018,48 +1093,46 @@ footer p {
     }
 
 
-    /* QUICK BOOK */
+    /* HOW IT WORKS */
 
-    .quick-book {
-        width: 92%;
+    .how-it-work-box {
+        padding: 40px 20px 50px;
+    }
 
-        padding: 15px;
+    .how-it-work-box h2 {
+        font-size: 26px;
+
+        margin-bottom: 28px;
+    }
+
+    .step-text {
+        font-size: 15px;
     }
 
 
-    /* SECTIONS */
+    /* FEATURES */
 
-    .section,
     .why-section {
-        padding: 40px 20px;
+        padding: 40px 15px;
     }
 
-    .section h2,
     .why-section h2 {
         font-size: 25px;
 
         margin-bottom: 25px;
     }
 
-
-    /* STEPS & FEATURES */
-
-    .steps,
     .features {
         grid-template-columns: 1fr;
 
-        gap: 12px;
+        gap: 15px;
     }
 
-    .step,
     .feature {
-        padding: 22px 15px;
+        padding: 18px;
     }
 
-
-    /* FEATURE IMAGE */
-
-    .features img {
+    .feature img {
         height: 180px;
     }
 
@@ -1088,10 +1161,10 @@ footer p {
     }
 
 
-    /* BOOKING CONFIRMATION */
+    /* CONFIRMATION */
 
     .booking-confirmation {
-        width: 92%;
+        width: 94%;
 
         padding: 18px;
     }
@@ -1121,70 +1194,93 @@ footer p {
 
 /* =========================================================
    SMALL MOBILE
-   ========================================================= */
+========================================================= */
 
 @media (max-width: 480px) {
 
     .header {
-        min-height: 65px;
         height: 65px;
+        min-height: 65px;
 
-        padding: 0 8px;
+        padding: 0 6px;
     }
 
     .logo-img {
-        height: 62px;
+        height: 56px;
     }
 
-    .logo-text {
+    .logo-bhada {
         font-size: 17px;
     }
 
     .QR-container img {
-        width: 65px;
-        height: 65px;
+        width: 48px;
+        height: 48px;
+    }
+
+    .menu-btn {
+        font-size: 20px;
+    }
+
+
+    .hero {
+        padding: 12px 7px 25px;
+    }
+
+
+    .get-lift-btn,
+    .get-lift-btn img {
+        width: 50px;
+    }
+
+    .phone-number {
+        font-size: 14px;
     }
 
     .call-btn {
         width: 36px;
         height: 36px;
 
-        font-size: 20px;
+        font-size: 19px;
     }
 
-    .hero {
-        padding: 18px 8px;
-    }
 
     .hero h1 {
-        font-size: 27px;
+        font-size: 25px;
     }
 
     .sub-tagline {
         font-size: 14px;
     }
 
+
     .booking-box {
-        width: 96%;
-        padding: 15px;
+        width: 98%;
+
+        padding: 13px;
     }
 
     .location-input {
-        height: 48px;
+        height: 46px;
     }
 
-    .section,
-    .why-section {
-        padding: 35px 15px;
-    }
-
-    .section h2,
-    .why-section h2 {
-        font-size: 23px;
-    }
 
     .fare-box {
         flex-direction: column;
-        gap: 12px;
+
+        gap: 10px;
+    }
+
+
+    .how-it-work-box {
+        padding: 35px 15px 45px;
+    }
+
+    .how-it-work-box h2 {
+        font-size: 23px;
+    }
+
+    .step-text {
+        font-size: 14px;
     }
 }
