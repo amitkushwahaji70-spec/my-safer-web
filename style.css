@@ -1,27 +1,60 @@
+/* =========================================================
+   safer saman - CLEAN RESPONSIVE CSS
+   ========================================================= */
+
+/* =========================
+   RESET
+   ========================= */
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
+html {
+    scroll-behavior: smooth;
+}
+
 body {
     font-family: Arial, sans-serif;
     color: #17233c;
+    background: #ffffff;
     min-height: 100vh;
-    margin: 0;
     overflow-x: hidden;
 }
 
-/* HEADER */
+button,
+input,
+select {
+    font-family: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
 .header {
-    height: 200px;
-    background-image: url('images/bridge2.png');
+    width: 100%;
+    min-height: 200px;
+
+    background-image: url("images/bridge2.png");
     background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
     display: flex;
     align-items: center;
     justify-content: space-between;
+
     padding: 0 2%;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
 }
 
 .logo-area {
@@ -29,7 +62,12 @@ body {
     align-items: center;
     gap: 0;
 }
-.logo-img{height: 170px;max-width: auto;object-fit: contain;
+
+.logo-img {
+    height: 170px;
+    width: auto;
+    max-width: 100%;
+    object-fit: contain;
 }
 
 .logo-text {
@@ -46,57 +84,93 @@ body {
     color: transparent;
     font-size: 13px;
     font-weight: bold;
-    margin-top: 0;
 }
 
-.QR-container img{
-  height:150px;
-  width:150px;
-  border:0; 
+
+/* =========================
+   QR CODE
+   ========================= */
+
+.QR-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
+
+.QR-container img {
+    width: 150px;
+    height: 150px;
+    object-fit: contain;
+    border: 0;
+}
+
+
+/* =========================
+   CALL BUTTON
+   ========================= */
+
 .call-btn {
-    width: 35px;
+    width: 45px;
+    height: 45px;
+
     border: none;
-    border-radius: 6px;
-    background: none;
-    color: black;
+    border-radius: 8px;
+
+    background: transparent;
+    color: #000000;
+
     font-size: 30px;
     cursor: pointer;
-    display: inline-block;
-    align-item: right;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    transition: opacity 0.2s ease,
+                transform 0.2s ease;
 }
 
 .call-btn:hover {
-    opacity: 0.9;
+    opacity: 0.8;
 }
+
+.call-btn:active {
+    transform: scale(0.95);
+}
+
+
+/* =========================
+   MENU BUTTON
+   ========================= */
 
 .menu-btn {
     border: none;
-    background: none;
+    background: transparent;
+
     font-size: 25px;
     cursor: pointer;
 }
 
 
-/* HERO */
+/* =========================================================
+   HERO
+   ========================================================= */
+
 .hero {
+    width: 100%;
     text-align: center;
+
     padding: 55px 20px 35px;
-    align-item: center;
-}
 
-#getLiftBtn {
-  transition: transform 0.1s ease-in-out;
-}
-
-#getLiftBtn:active {
-  transform: scale(0.95); 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .hero h1 {
     font-size: 35px;
     line-height: 1.2;
-    color:  orange;
+    color: orange;
 }
 
 .hero h1 span {
@@ -110,42 +184,83 @@ body {
 }
 
 
+/* =========================
+   GET LIFT BUTTON
+   ========================= */
 
-/* BOOKING BOX */
+#getLiftBtn {
+    transition: transform 0.1s ease-in-out;
+}
+
+#getLiftBtn:active {
+    transform: scale(0.95);
+}
+
+
+/* =========================================================
+   BOOKING BOX
+   ========================================================= */
 
 .booking-box {
     width: 90%;
-    max-width:none;
-    margin: 0;
+    max-width: 900px;
+
+    margin: 0 auto;
     padding: 20px;
-    border-radius: 12px ;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+
+    border-radius: 12px;
+
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
 }
 
 .booking-box h2 {
-    text-align: left;
     margin-bottom: 18px;
+
+    text-align: left;
+
     color: #102a56;
 }
 
 
-/* LOCATION INPUT */
+/* =========================================================
+   LOCATION INPUT
+   ========================================================= */
+
 .location-input {
+    width: 100%;
     height: 50px;
+
     border: 2px solid #d8dee8;
     border-radius: 12px;
+
     display: flex;
     align-items: center;
+
     padding: 0 15px;
+
     background: #fafbfc;
+
+    transition: border-color 0.2s ease,
+                box-shadow 0.2s ease;
+}
+
+.location-input:focus-within {
+    border-color: #f58220;
+    box-shadow: 0 0 0 3px rgba(245, 130, 32, 0.1);
 }
 
 .location-input input {
     flex: 1;
+
+    width: 100%;
+
     border: none;
     outline: none;
+
     background: transparent;
+
     font-size: 15px;
+
     margin-left: 10px;
 }
 
@@ -162,72 +277,128 @@ body {
 }
 
 
-/* DESTINATION */
+/* =========================================================
+   DESTINATION
+   ========================================================= */
+
 .destination-row {
+    width: 100%;
+
     display: flex;
+    align-items: stretch;
+
     gap: 12px;
+
     margin-top: 12px;
 }
 
 .destination {
     flex: 1;
+    min-width: 0;
 }
 
 .mic-btn {
     border: none;
     background: transparent;
+
     font-size: 20px;
+
     cursor: pointer;
+
+    padding: 5px;
 }
+
+.mic-btn:hover {
+    opacity: 0.7;
+}
+
+
+/* =========================
+   LISTENING STATE
+   ========================= */
+
 .listening {
     background-color: red !important;
-    animation: blink 1s infinite; 
+    animation: blink 1s infinite;
 }
-@keyframes blink { 50% { opacity: 0.6; } 
+
+@keyframes blink {
+    50% {
+        opacity: 0.6;
+    }
 }
 
 
-/* BOOK BUTTON */
+/* =========================================================
+   BOOK BUTTON
+   ========================================================= */
+
 .book-btn {
     width: 40%;
+    min-width: 180px;
     height: 58px;
+
     margin-top: 18px;
+
     border: none;
     border-radius: 12px;
+
     background: #102a56;
-    color: white;
+    color: #ffffff;
+
     font-size: 19px;
     font-weight: bold;
+
     cursor: pointer;
+
+    transition: background 0.2s ease,
+                transform 0.15s ease;
 }
 
 .book-btn:hover {
     background: #0b2044;
 }
 
+.book-btn:active {
+    transform: scale(0.98);
+}
 
-/* FARE */
+
+/* =========================================================
+   FARE
+   ========================================================= */
+
 .fare-box {
+    width: 100%;
     max-width: 850px;
+
     height: auto;
+
     margin: 15px auto 0;
     padding: 15px;
-    background: none;
+
+    background: transparent;
     border-radius: 14px;
+
     display: flex;
     justify-content: space-around;
+    align-items: center;
+
     gap: 20px;
 }
 
 .fare-box div {
     display: flex;
     flex-direction: column;
+
     gap: 6px;
+
+    text-align: center;
 }
 
 .fare-box span {
     font-size: 13px;
-    color: #666;
+    color: #666666;
 }
 
 .fare-box strong {
@@ -236,28 +407,45 @@ body {
 }
 
 
-/* QUICK BOOK */
+/* =========================================================
+   QUICK BOOK
+   ========================================================= */
+
 .quick-book {
+    width: 90%;
     max-width: 850px;
+
     margin: 25px auto;
+
     background: #eef3f9;
+
     padding: 20px;
+
     border-radius: 15px;
+
     display: flex;
     align-items: center;
+
     gap: 15px;
-    box-shadow: 0 4px 18px rgba(0,0,0,0.06);
+
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06);
 }
 
 .quick-book-icon {
     width: 50px;
     height: 50px;
+
+    flex-shrink: 0;
+
     border-radius: 50%;
+
     background: #f58220;
-    color: white;
+    color: #ffffff;
+
     display: flex;
     align-items: center;
     justify-content: center;
+
     font-size: 23px;
 }
 
@@ -267,60 +455,98 @@ body {
 }
 
 .quick-book p {
-    color: #666;
+    color: #666666;
     margin-top: 4px;
 }
 
 
-/* COMMON SECTION */
-.header-section, .how-it-work-section {
-  background-image: url('images/aa.png');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+/* =========================================================
+   COMMON BACKGROUND SECTIONS
+   ========================================================= */
+
+.header-section,
+.how-it-work-section {
+    background-image: url("images/aa.png");
+
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 
+/* =========================================================
+   COMMON SECTIONS
+   ========================================================= */
+
 .section,
 .why-section {
+    width: 100%;
+
     padding: 65px 6%;
+
     text-align: center;
 }
 
 .section h2,
 .why-section h2 {
     font-size: 32px;
+
     color: #102a56;
+
     margin-bottom: 35px;
 }
 
 
-/* STEPS */
+/* =========================================================
+   HOW IT WORKS
+   ========================================================= */
+
 .steps {
+    width: 100%;
     max-width: 1100px;
-    margin: auto;
+
+    margin: 0 auto;
+
     display: grid;
     grid-template-columns: repeat(4, 1fr);
+
     gap: 20px;
 }
 
 .step {
     background: #eef3f9;
+
     padding: 25px 15px;
+
     border-radius: 15px;
-    box-shadow: 0 4px 18px rgba(0,0,0,0.06);
+
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06);
+
+    transition: transform 0.2s ease,
+                box-shadow 0.2s ease;
+}
+
+.step:hover {
+    transform: translateY(-3px);
+
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.08);
 }
 
 .step-number {
     width: 45px;
     height: 45px;
-    margin: auto;
+
+    margin: 0 auto;
+
     border-radius: 50%;
-    background: #eef3f9;
-    color: #eef3f9;
+
+    background: #f58220;
+    color: #ffffff;
+
     display: flex;
     align-items: center;
     justify-content: center;
+
     font-weight: bold;
     font-size: 18px;
 }
@@ -332,35 +558,50 @@ body {
 
 .step p {
     margin-top: 8px;
-    color: #666;
+
+    color: #666666;
+
     font-size: 14px;
 }
 
 
-/* WHY saferसामान  */
+/* =========================================================
+   WHY safer saman
+   ========================================================= */
+
 .why-section {
     background: #eef3f9;
 }
 
 .features {
+    width: 100%;
     max-width: 1100px;
-    margin: auto;
+
+    margin: 0 auto;
+
     display: grid;
     grid-template-columns: repeat(4, 1fr);
+
     gap: 20px;
+}
+
+.feature {
+    background: #ffffff;
+
+    padding: 25px 18px;
+
+    border-radius: 15px;
+
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
 }
 
 .features img {
     width: 100%;
     height: 200px;
+
     object-fit: cover;
+
     border-radius: 8px;
-}
-     
-.feature {
-    background: white;
-    padding: 25px 18px;
-    border-radius: 15px;
 }
 
 .feature span {
@@ -369,22 +610,33 @@ body {
 
 .feature h3 {
     margin-top: 12px;
+
     color: #102a56;
 }
 
 .feature p {
     margin-top: 8px;
-    color: #666;
+
+    color: #666666;
+
     font-size: 14px;
 }
 
 
-/* DRIVER */
+/* =========================================================
+   DRIVER SECTION
+   ========================================================= */
+
 .driver-section {
+    width: 100%;
+
     text-align: center;
+
     padding: 30px 10px;
+
     background: #102a56;
-    color: white;
+
+    color: #ffffff;
 }
 
 .driver-section h2 {
@@ -397,21 +649,44 @@ body {
 
 .driver-btn {
     padding: 12px 20px;
+
     border: none;
     border-radius: 8px;
+
     background: #f58220;
-    color: white;
+    color: #ffffff;
+
     font-size: 15px;
     font-weight: bold;
+
     cursor: pointer;
+
+    transition: background 0.2s ease,
+                transform 0.15s ease;
+}
+
+.driver-btn:hover {
+    background: #e47110;
+}
+
+.driver-btn:active {
+    transform: scale(0.97);
 }
 
 
-/* FOOTER */
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
 footer {
+    width: 100%;
+
     background: #0b1933;
-    color: white;
+
+    color: #ffffff;
+
     text-align: center;
+
     padding: 40px 20px;
 }
 
@@ -434,10 +709,19 @@ footer p {
 }
 
 .footer-links a {
-    color: white;
+    color: #ffffff;
+
     text-decoration: none;
+
     margin: 0 10px;
+
     font-size: 14px;
+
+    transition: color 0.2s ease;
+}
+
+.footer-links a:hover {
+    color: #f58220;
 }
 
 .copyright {
@@ -445,19 +729,26 @@ footer p {
     margin-top: 25px;
 }
 
-/* ===================================
+
+/* =========================================================
    BOOKING CONFIRMATION
-=================================== */
+   ========================================================= */
 
 .booking-confirmation {
     display: none;
+
     width: 90%;
     max-width: 650px;
+
     margin: 20px auto;
+
     padding: 22px;
+
     background: #ffffff;
+
     border-radius: 18px;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
 }
 
 .booking-confirmation.show {
@@ -466,169 +757,434 @@ footer p {
 
 .booking-confirmation h3 {
     margin-top: 0;
+
     text-align: center;
+
     font-size: 24px;
 }
 
 .confirm-row {
     display: flex;
+
     justify-content: space-between;
+
     gap: 20px;
+
     padding: 12px 0;
+
     border-bottom: 1px solid #eeeeee;
 }
 
 .confirm-row span {
-    color: #555;
+    color: #555555;
 }
 
 .confirm-row strong {
-    text-align: right;
     max-width: 60%;
+
+    text-align: right;
+
+    overflow-wrap: anywhere;
 }
 
 .confirm-actions {
     display: flex;
+
     gap: 12px;
+
     margin-top: 20px;
 }
 
 .edit-booking-btn,
 .confirm-booking-btn {
     flex: 1;
+
     padding: 13px;
+
     border: none;
     border-radius: 10px;
+
     cursor: pointer;
+
     font-size: 16px;
     font-weight: bold;
 }
 
 .edit-booking-btn {
     background: #eeeeee;
+    color: #222222;
 }
 
 .confirm-booking-btn {
     background: #111111;
-    color: white;
+    color: #ffffff;
 }
+
+.edit-booking-btn:hover {
+    background: #dddddd;
+}
+
+.confirm-booking-btn:hover {
+    background: #222222;
+}
+
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width: 900px) {
+
+    .header {
+        min-height: 140px;
+    }
+
+    .logo-img {
+        height: 120px;
+    }
+
+    .QR-container img {
+        width: 110px;
+        height: 110px;
+    }
+
+    .steps,
+    .features {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .booking-box {
+        width: 92%;
+    }
+
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
 
 @media (max-width: 769px) {
 
+    body {
+        width: 100%;
+    }
+
+
+    /* HEADER */
+
+    .header {
+        width: 100%;
+        min-height: 70px;
+        height: 70px;
+
+        padding: 0 10px;
+
+        background-size: cover;
+        background-position: center;
+    }
+
+    .logo-area {
+        max-width: 70%;
+    }
+
+    .logo-img {
+        height: 70px;
+        width: auto;
+    }
+
+    .logo-text {
+        font-size: 20px;
+    }
+
+    .logo-area small {
+        display: none;
+    }
+
+    .QR-container img {
+        width: 80px;
+        height: 80px;
+    }
+
+    .call-btn {
+        width: 42px;
+        height: 42px;
+
+        font-size: 22px;
+    }
+
+
+    /* HERO */
+
+    .hero {
+        width: 100%;
+
+        padding: 20px 10px;
+
+        overflow: hidden;
+
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .hero h1 {
+        font-size: 31px;
+    }
+
+    .sub-tagline {
+        font-size: 16px;
+    }
+
+
+    /* BOOKING */
+
+    .booking-box {
+        width: 92%;
+        max-width: 100%;
+
+        margin: 0 auto;
+
+        padding: 18px;
+    }
+
+    .booking-box h2 {
+        font-size: 22px;
+    }
+
+
+    /* LOCATION */
+
+    .location-input {
+        height: 50px;
+
+        padding: 0 12px;
+    }
+
+    .location-input input {
+        font-size: 14px;
+    }
+
+
+    /* DESTINATION */
+
+    .destination-row {
+        width: 100%;
+
+        flex-direction: column;
+
+        gap: 8px;
+    }
+
+    .destination {
+        width: 100%;
+    }
+
+    .destination-row input,
+    .destination-row select {
+        width: 100%;
+    }
+
+
+    /* MIC */
+
+    .mic-btn {
+        font-size: 19px;
+    }
+
+
+    /* BOOK BUTTON */
+
+    .book-btn {
+        width: 100%;
+        min-width: 0;
+    }
+
+
+    /* FARE */
+
+    .fare-box {
+        width: 100%;
+
+        margin: 10px auto;
+
+        padding: 10px;
+
+        gap: 10px;
+    }
+
+    .fare-box strong {
+        font-size: 18px;
+    }
+
+
+    /* QUICK BOOK */
+
+    .quick-book {
+        width: 92%;
+
+        padding: 15px;
+    }
+
+
+    /* SECTIONS */
+
+    .section,
+    .why-section {
+        padding: 40px 20px;
+    }
+
+    .section h2,
+    .why-section h2 {
+        font-size: 25px;
+
+        margin-bottom: 25px;
+    }
+
+
+    /* STEPS & FEATURES */
+
+    .steps,
+    .features {
+        grid-template-columns: 1fr;
+
+        gap: 12px;
+    }
+
+    .step,
+    .feature {
+        padding: 22px 15px;
+    }
+
+
+    /* FEATURE IMAGE */
+
+    .features img {
+        height: 180px;
+    }
+
+
+    /* DRIVER */
+
+    .driver-section {
+        padding: 30px 15px;
+    }
+
+    .driver-section h2 {
+        font-size: 25px;
+    }
+
+
+    /* FOOTER */
+
+    footer {
+        padding: 30px 15px;
+    }
+
+    .footer-links a {
+        display: inline-block;
+
+        margin: 5px 8px;
+    }
+
+
+    /* BOOKING CONFIRMATION */
+
     .booking-confirmation {
-        width: 88%;
+        width: 92%;
+
         padding: 18px;
     }
 
     .confirm-row {
         flex-direction: column;
+
         gap: 5px;
     }
 
     .confirm-row strong {
         max-width: 100%;
+
         text-align: left;
     }
 
     .confirm-actions {
         flex-direction: column;
     }
+
+    .edit-booking-btn,
+    .confirm-booking-btn {
+        width: 100%;
+    }
 }
 
-/* MOBILE RESPONSIVE FIXES */
-@media (max-width: 769px) { 
 
-  /* Global Fixes to prevent layout breaking & tile repetition */
-  * {
-    box-sizing: border-box;
-  }
-.header {
-   height: 70px,
-   width: 350px;
-  .background-img {
-      height:70px; 
-      width:350px;
-  }
-   background-size: cover;
-  .logo-img {
-    height: 70px;
-    width: auto;
-   }
-  .call-btn {
-      width:20px;
-      font-size:10px
-  }             
-  .QR-container img {
-      height:80px; 
-      width:80px;
-  }
-    
- }
-  /* Hero Section */
-  .hero {
-    padding: 20px  10px; 
-    width: 100%;
-    height: auto;  
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    position: relative;
-    
-  }
+/* =========================================================
+   SMALL MOBILE
+   ========================================================= */
 
-  .hero h1 {
-    font-size: 31px; 
-  }
+@media (max-width: 480px) {
 
-  .sub-tagline {
-    font-size: 16px; 
-  }
+    .header {
+        min-height: 65px;
+        height: 65px;
 
-  /* Booking & Input Containers */
-  .booking-box {
-    padding: 18px; 
-    width: 92% !important;
-    max-width: 100%;
-    margin: 0 auto;
-  }
+        padding: 0 8px;
+    }
 
-  .destination-row {
-    flex-direction: column;
-    gap: 8px; 
-    width: 100%;
-  }
+    .logo-img {
+        height: 62px;
+    }
 
-  .destination-row input,
-  .destination-row select {
-    width: 100%;
-  }
+    .logo-text {
+        font-size: 17px;
+    }
 
-  .fare-box {
-    margin: 10px auto;
-    width: auto;
-  }
+    .QR-container img {
+        width: 65px;
+        height: 65px;
+    }
 
-  .call-btn {
-    width: 52px; 
-  }
+    .call-btn {
+        width: 36px;
+        height: 36px;
 
-  /* Grid Fixes (Steps & Features) */
-  .steps,
-  .features {
-    grid-template-columns: 1fr; 
-    gap: 10px;
-  }
+        font-size: 20px;
+    }
 
-  /* General Sections */
-  .section,
-  .why-section {
-    padding: 40px 20px; 
-  }
+    .hero {
+        padding: 18px 8px;
+    }
 
-  .section h2,
-  .why-section h2 {
-    font-size: 25px; 
-  }
+    .hero h1 {
+        font-size: 27px;
+    }
 
-} /* Closing bracket for media query */
+    .sub-tagline {
+        font-size: 14px;
+    }
+
+    .booking-box {
+        width: 96%;
+        padding: 15px;
+    }
+
+    .location-input {
+        height: 48px;
+    }
+
+    .section,
+    .why-section {
+        padding: 35px 15px;
+    }
+
+    .section h2,
+    .why-section h2 {
+        font-size: 23px;
+    }
+
+    .fare-box {
+        flex-direction: column;
+        gap: 12px;
+    }
+}
