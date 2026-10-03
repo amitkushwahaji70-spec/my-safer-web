@@ -1032,93 +1032,77 @@ function editBooking() {
 // ===================================
 
 async function sendConfirmedBooking(booking) {
-
     try {
-
-        console.log("Sending booking to server...", booking);
+        console.log("Sending booking:", booking);
 
         const response = await fetch(
             "https://my-safer-web.vercel.app/api/send-booking",
             {
                 method: "POST",
-
                 headers: {
                     "Content-Type": "application/json"
                 },
-
                 body: JSON.stringify({
-
                     bookingId: booking.bookingId,
-
                     pickup: booking.pickupLabel,
-
                     destination: booking.dropLabel,
-
-                    distance: booking.distance.toFixed(1),
-
+                    distance: Number(booking.distance).toFixed(1),
                     fare: booking.fare
-
                 })
             }
         );
 
+        const responseText = await response.text();
 
-        const data = await response.json();
+        console.log("API Status:", response.status);
+        console.log("API Response:", responseText);
 
+        let data;
 
-        console.log(
-            "Server response:",
-            data
-        );
-
-
-        if (!response.ok || !data.success) {
-
+        try {
+            data = JSON.parse(responseText);
+        } catch {
             throw new Error(
-                data.message ||
-                "WhatsApp booking failed"
+                `Server returned invalid response: ${responseText}`
             );
-
         }
 
+        if (!response.ok) {
+            throw new Error(
+                data.message ||
+                `Server error: ${response.status}`
+            );
+        }
+
+        if (!data.success) {
+            throw new Error(
+                data.message ||
+                "WhatsApp server rejected the booking."
+            );
+        }
 
         alert(
-            "Booking Confirmed! ✅\n\nBooking ID: " +
+            "Booking Confirmed! ✅\n\n" +
+            "Booking ID: " +
             booking.bookingId
         );
 
-
-        // Hide confirmation box
-
         const confirmation =
-            document.getElementById(
-                "bookingConfirmation"
-            );
+            document.getElementById("bookingConfirmation");
 
         if (confirmation) {
-
-            confirmation.classList.remove(
-                "show"
-            );
-
+            confirmation.classList.remove("show");
         }
-
 
     } catch (error) {
 
-        console.error(
-            "Booking sending error:",
-            error
-        );
-
+        console.error("WHATSAPP BOOKING ERROR:", error);
 
         alert(
-            "Booking send nahi ho paayi. Please try again."
+            "WhatsApp booking failed ❌\n\n" +
+            error.message
         );
-
     }
-
-
 }
 //=====================================
 // SEND CURRENT LOCATION TO  WHATSAPP
