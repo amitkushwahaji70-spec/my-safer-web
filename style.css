@@ -313,7 +313,7 @@ button {
 
     margin-top: 30px;
 
-    padding: 40px;
+    padding: 50px;
 
     background: rgba(0, 0, 0, 0.4);
    
@@ -685,13 +685,13 @@ button {
 }
 
 .circle {
-    width: 38px;
-    height: 38px;
+    width: 35px;
+    height: 35px;
 
     flex-shrink: 0;
 
     border: 2px solid #102a56;
-    border-radius: 45%;
+    border-radius: 50%;
 
     background: rgba(255, 255, 255, 0.95);
 
@@ -728,11 +728,11 @@ button {
 
     align-items: center;
 
-    width: 38px;
+    width: 35px;
 
     margin: 5px 0;
 
-    line-height: 8px;
+    line-height: 7px;
 
     color: #ffffff;
 
