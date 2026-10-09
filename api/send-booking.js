@@ -23,8 +23,11 @@ export default async function handler(req, res) {
       pickup,
       destination,
       distance,
-      fare
+      fare,
+      phone
     } = req.body;
+    const rawPhone = phone || "919244130492";
+    const recipientNumber = rawPhone.replace(/\D/g, ''); // केवल अंक रखेगा
 
     // Validation
     if (
