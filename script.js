@@ -78,10 +78,11 @@ function detectLocation(sendToWhatsApp = false) {
     
 }
 
+// =====================================
+// LOCATIONIQ - EXACT TEXT ADDRESS ONLY
+// =====================================
 
-// =====================================
-// LOCATION SUCCESS
-// =====================================
+const LOCATIONIQ_API_KEY = "pk.4c006a5c294e6ea44c55d0f1fa4b0226"; 
 
 async function successLocation(position, sendToWhatsApp = false) {
 
@@ -89,126 +90,56 @@ async function successLocation(position, sendToWhatsApp = false) {
     currentLng = position.coords.longitude;
 
     const accuracy = position.coords.accuracy;
+    console.log(`GPS Lat/Lng: ${currentLat}, ${currentLng} (Accuracy: ${accuracy}m)`);
 
-    console.log("=================================");
-    console.log("CURRENT LOCATION");
-    console.log("Latitude:", currentLat);
-    console.log("Longitude:", currentLng);
-    console.log("Accuracy:", accuracy, "meters");
-    console.log("=================================");
-
-
-    const pickupInput =
-        document.getElementById("pickup");
-
+    const pickupInput = document.getElementById("pickup");
 
     if (pickupInput) {
-
-        pickupInput.value =
-            "Detecting location...";
-
+        pickupInput.value = "सटीक एड्रेस डिटेक्ट हो रहा है...";
     }
 
-
     // =================================
-    // REVERSE GEOCODING
-    // Coordinates → Address
+    // LOCATIONIQ REVERSE GEOCODING
+    // Coordinates → Text Address
     // =================================
-
     try {
+        const url = `https://us1.locationiq.com/v1/reverse.php?key=${LOCATIONIQ_API_KEY}&lat=${currentLat}&lon=${currentLng}&format=json&accept-language=hi,en`;
 
-        const url =
-            `${ORS_BASE_URL}/pelias/v1/reverse` +
-            `?api_key=${ORS_API_KEY}` +
-            `&point.lon=${currentLng}` +
-            `&point.lat=${currentLat}`;
-
-
-        console.log(
-            "Reverse Geocoding URL:",
-            url
-        );
-
-
-        const response =
-            await fetch(url);
-
+        const response = await fetch(url);
 
         if (!response.ok) {
-
-            throw new Error(
-                `Reverse geocoding failed: ${response.status}`
-            );
-
+            throw new Error(`LocationIQ failed with status: ${response.status}`);
         }
 
+        const data = await response.json();
 
-        const data =
-            await response.json();
-
-
-        console.log(
-            "Reverse Geocoding Response:",
-            data
-        );
-
-
-        if (
-            data.features &&
-            data.features.length > 0
-        ) {
-
-            currentAddress =
-                data.features[0].properties.label ||
-                data.features[0].properties.name ||
-                `${currentLat.toFixed(6)}, ${currentLng.toFixed(6)}`;
-
+        // LocationIQ से सटीक टेक्स्ट एड्रेस लें
+        if (data && data.display_name) {
+            currentAddress = data.display_name;
         } else {
-
-            currentAddress =
-                `${currentLat.toFixed(6)}, ${currentLng.toFixed(6)}`;
-
+            currentAddress = `${currentLat.toFixed(6)}, ${currentLng.toFixed(6)}`;
         }
 
-
+    } catch (error) {
+        console.error("LocationIQ Error:", error);
+        currentAddress = `${currentLat.toFixed(6)}, ${currentLng.toFixed(6)}`;
     }
 
-    catch (error) {
-
-        console.error(
-            "Reverse geocoding error:",
-            error
-        );
-
-
-        currentAddress =
-            `${currentLat.toFixed(6)}, ${currentLng.toFixed(6)}`;
-
-    }
-
-
     // =================================
-    // PUT LOCATION INTO PICKUP
+    // INPUT BOX में TEXT भरें
     // =================================
-
     if (pickupInput) {
-
-        pickupInput.value =
-            currentAddress;
-
+        pickupInput.value = currentAddress;
     }
 
+    console.log("Input Text Address:", currentAddress);
 
-    console.log(
-        "Current Address:",
-        currentAddress
-    );
-if (sendToWhatsApp) {
-    await sendCurrentLocationToWhatsApp();
-}
-    
+    if (sendToWhatsApp) {
+        await sendCurrentLocationToWhatsApp();
+    }
 }
 
+ 
 
 // =====================================
 // FORWARD GEOCODING
