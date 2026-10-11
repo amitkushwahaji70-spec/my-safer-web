@@ -1104,52 +1104,32 @@ async function sendConfirmedBooking(booking) {
         );
     }
 }
-//=====================================
-// SEND CURRENT LOCATION TO  WHATSAPP
-//=====================================
+// =====================================
+// SEND CURRENT LOCATION TO WHATSAPP
+// =====================================
 
 async function sendCurrentLocationToWhatsApp() {
-
-    try {
-
-        const response = await fetch(
-            "https://my-safer-web.vercel.app/api/send-location",
-            {
-                method: "POST",
-
-                headers: {
-                    "Content-Type": "application/json"
-                },
-
-                body: JSON.stringify({
-                    latitude: currentLat,
-                    longitude: currentLng,
-                    address: currentAddress
-                })
-            }
-        );
-
-        const data = await response.json();
-
-        if (!response.ok || !data.success) {
-            throw new Error(
-                data.message || "Location sending failed"
-            );
-        }
-
-        alert("Current location sent successfully! ✅");
-
-    } catch (error) {
-
-        console.error(
-            "Location sending error:",
-            error
-        );
-
-        alert(
-            "Current location send nahi ho paayi. Please try again."
-        );
+    // 1. चेक करें कि लेटेस्ट कोऑर्डिनेट्स मौजूद हैं या नहीं
+    if (!currentLat || !currentLng) {
+        alert("कृपया पहले 'Detect Location' पर क्लिक करके लोकेशन फेच करें!");
+        return;
     }
+
+    // 2. Google Maps का सटीक लिंक बनाएं
+    const mapsLink = `https://www.google.com/maps?q=${currentLat},${currentLng}`;
+    
+    // 3. WhatsApp पर भेजने के लिए मैसेज तैयार करें
+    const message = encodeURIComponent(
+        `Hello culiGO! 🚚\nयहाँ से मेरा सामान उठाना है (Pickup Location):\n📍 एड्रेस: ${currentAddress}\n🗺️ Google Maps Link: ${mapsLink}`
+    );
+
+    // 4. अपना WhatsApp नंबर यहाँ डालें (देश के कोड के साथ, जैसे 91 लगाकार)
+    const phoneNumber = "917974483199"; // <--- यहाँ अपना व्हाट्सएप नंबर बदल लें
+
+    // 5. WhatsApp चैट खोलें
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${message}`;
+    
+    window.open(whatsappUrl, '_blank');
 }
 
 // =====================================
