@@ -506,6 +506,79 @@ async function calculateBooking() {
     const drop =
         dropInput.value.trim();
 
+    // सुझाव लाने का कॉमन फंक्शन
+async function fetchSuggestions(query) {
+  if (!query || query.length < 3) return [];
+  const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=in&addressdetails=1&limit=5`;
+
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
+    return data.map(item => ({
+      name: item.display_name,
+      lat: parseFloat(item.lat),
+      lon: parseFloat(item.lon)
+    }));
+  } catch (err) {
+    console.error("Autocomplete Error:", err);
+    return [];
+  }
+}
+
+// सेटअप फंक्शन जो इनपुट से जुड़ेगा
+function setupAutocomplete(inputId, listId) {
+  const inputElem = document.getElementById(inputId);
+  const listElem = document.getElementById(listId);
+
+  if (!inputElem || !listElem) return;
+
+  inputElem.addEventListener("input", async (e) => {
+    const query = e.target.value;
+    listElem.innerHTML = ""; // पुरानी लिस्ट साफ करें
+
+    if (query.length < 3) return;
+
+    const suggestions = await fetchSuggestions(query);
+
+    suggestions.forEach(item => {
+      const li = document.createElement("li");
+      li.textContent = item.name;
+      li.style.padding = "8px 12px";
+      li.style.cursor = "pointer";
+      li.style.borderBottom = "1px solid #eee";
+      li.style.background = "#fff";
+      li.style.fontSize = "14px";
+
+      // माउस ले जाने पर रंग बदले
+      li.addEventListener("mouseenter", () => li.style.background = "#f0f0f0");
+      li.addEventListener("mouseleave", () => li.style.background = "#fff");
+
+      // जब यूजर किसी सुझाव पर क्लिक करे
+      li.addEventListener("click", () => {
+        inputElem.value = item.name;
+        inputElem.dataset.lat = item.lat; // लेट सहेजें
+        inputElem.dataset.lon = item.lon; // लॉन्ग सहेजें
+        listElem.innerHTML = "";          // लिस्ट बंद करें
+      });
+
+      listElem.appendChild(li);
+    });
+  });
+
+  // बाहर क्लिक करने पर लिस्ट छिप जाए
+  document.addEventListener("click", (e) => {
+    if (!inputElem.contains(e.target) && !listElem.contains(e.target)) {
+      listElem.innerHTML = "";
+    }
+  });
+}
+
+// दोनों इनपुट पर ऑटो-सजेशन चालू करें
+setupAutocomplete("pickup", "pickup-suggestions");
+setupAutocomplete("destination", "destination-suggestions");
+
+
+
 
     // =================================
     // VALIDATION
@@ -842,6 +915,33 @@ async function calculateBooking() {
 
 }
 
+// यह फाइनल फंक्शन जोड़ें 
+function getFinalDistanceAndFare(pickupLat, pickupLon, dropLat, dropLon, apiDistance) {
+    let distance = apiDistance; 
+    // अगर API से दूरी न मिले या 0 हो (गांव या लोकल सिटी के लिए) 
+    if (!distance || distance <= 0) { 
+        const R = 6371; // Earth radius in KM 
+        const dLat = ((dropLat - pickupLat) * Math.PI) / 180;
+        const dLon = ((dropLon - pickupLon) * Math.PI) / 180; 
+        const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + 
+                  Math.cos((pickupLat * Math.PI) / 180) * Math.cos((dropLat * Math.PI) / 180) *
+                  Math.sin(dLon / 2) * Math.sin(dLon / 2); 
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)); 
+        const straightKm = R * c; 
+        
+        distance = Math.max(1, Math.round((straightKm * 1.2) * 10) / 10); // सड़क के मोड़ के लिए 20% एक्स्ट्रा } /
+        
+    // किराया कैलकुलेशन (न्यूनतम ₹50 और ₹15 प्रति किमी) 
+        const minFare = 50;
+        const ratePerKm = 15;
+        let fare = Math.max(Math.round(distance * ratePerKm), minFare);
+        return { distance, fare }; 
+    }
+}
+
+                                     
+                                                                                       
+                                                                                       
 
 // =====================================
 // CONFIRM BOOKING
