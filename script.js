@@ -1,1122 +1,192 @@
 // =====================================
 // SAFER SAMAN BOOKING SYSTEM
-// LOCATION + ORS + DISTANCE + FARE
-// + CONFIRMATION + WHATSAPP + CALL
-// =====================================
-
-
-// =====================================
-// SETTINGS
 // =====================================
 
 const RATE_PER_KM = 15;
-
-const ORS_API_KEY = "eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjkyNWViMmNhODVkZDQ0MTBiZjE5M2Q3ZWI0YjVjMjQ2IiwiaCI6Im11cm11cjY0In0=";
-
-
+const ORS_API_KEY ="eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjkyNWViMmNhODVkZDQ0MTBiZjE5M2Q3ZWI0YjVjMjQ2IiwiaCI6Im11cm11cjY0In0=";
 const ORS_BASE_URL = "https://api.heigit.org";
-
-
-// =====================================
-// CURRENT LOCATION DATA
-// =====================================
+const ORS_API_BASE_URL = "https://api.openrouteservice.org";
 
 let currentAddress = "";
 let currentLat = null;
 let currentLng = null;
-
-
-// =====================================
-// CURRENT BOOKING
-// =====================================
-
 let currentBooking = null;
-
+let destinationSuggestTimer = null;
+let destinationSuggestController = null;
+let pendingWhatsAppWindow = null;
 
 // =====================================
 // PAGE LOAD
 // =====================================
 
 window.addEventListener("load", () => {
-
     console.log("SAFER SAMAN loaded");
 
     initializeVoiceSearch();
-
+    initializeDestinationInput();
     bindButtons();
 
-    // Automatically detect current location
+    // Existing current-location behavior retained
     detectLocation();
-
 });
-
 
 // =====================================
 // DETECT CURRENT LOCATION
+// Existing location flow retained
 // =====================================
 
 function detectLocation(sendToWhatsApp = false) {
-
     if (!navigator.geolocation) {
-
         alert("Your browser does not support location.");
-
         return;
     }
 
-    console.log("Requesting current location...");
-
     navigator.geolocation.getCurrentPosition(
-    position => successLocation(position, sendToWhatsApp),
-    handleLocationError,
-    {
-        enableHighAccuracy: true,
-        timeout: 15000,
-        maximumAge: 0
-    }
-);
-    
+        position => successLocation(position, sendToWhatsApp),
+        handleLocationError,
+        {
+            enableHighAccuracy: true,
+            timeout: 15000,
+            maximumAge: 0
+        }
+    );
 }
 
-// =====================================
-// LOCATIONIQ - EXACT TEXT ADDRESS ONLY
-// =====================================
-
-const LOCATIONIQ_API_KEY = "pk.4c006a5c294e6ea44c55d0f1fa4b0226"; 
-
 async function successLocation(position, sendToWhatsApp = false) {
-
     currentLat = position.coords.latitude;
     currentLng = position.coords.longitude;
-
-    const accuracy = position.coords.accuracy;
-    console.log(`GPS Lat/Lng: ${currentLat}, ${currentLng} (Accuracy: ${accuracy}m)`);
 
     const pickupInput = document.getElementById("pickup");
 
     if (pickupInput) {
-        pickupInput.value = "सटीक एड्रेस डिटेक्ट हो रहा है...";
+        pickupInput.value = "Detecting location...";
     }
 
-    // =================================
-    // LOCATIONIQ REVERSE GEOCODING
-    // Coordinates → Text Address
-    // =================================
     try {
-        const url = `https://us1.locationiq.com/v1/reverse.php?key=${LOCATIONIQ_API_KEY}&lat=${currentLat}&lon=${currentLng}&format=json&accept-language=hi,en`;
+        const url =
+            `${ORS_BASE_URL}/pelias/v1/reverse` +
+            `?api_key=${ORS_API_KEY}` +
+            `&point.lon=${currentLng}` +
+            `&point.lat=${currentLat}`;
 
         const response = await fetch(url);
 
         if (!response.ok) {
-            throw new Error(`LocationIQ failed with status: ${response.status}`);
+            throw new Error(`Reverse geocoding failed: ${response.status}`);
         }
 
         const data = await response.json();
 
-        // LocationIQ से सटीक टेक्स्ट एड्रेस लें
-        if (data && data.display_name) {
-            currentAddress = data.display_name;
+        if (data.features && data.features.length > 0) {
+            currentAddress =
+                data.features[0].properties.label ||
+                data.features[0].properties.name ||
+                `${currentLat.toFixed(6)}, ${currentLng.toFixed(6)}`;
         } else {
-            currentAddress = `${currentLat.toFixed(6)}, ${currentLng.toFixed(6)}`;
+            currentAddress =
+                `${currentLat.toFixed(6)}, ${currentLng.toFixed(6)}`;
         }
-
     } catch (error) {
-        console.error("LocationIQ Error:", error);
-        currentAddress = `${currentLat.toFixed(6)}, ${currentLng.toFixed(6)}`;
+        console.error("Reverse geocoding error:", error);
+        currentAddress =
+            `${currentLat.toFixed(6)}, ${currentLng.toFixed(6)}`;
     }
 
-    // =================================
-    // INPUT BOX में TEXT भरें
-    // =================================
     if (pickupInput) {
         pickupInput.value = currentAddress;
     }
 
-    console.log("Input Text Address:", currentAddress);
+    console.log("Current Address:", currentAddress);
 
     if (sendToWhatsApp) {
         await sendCurrentLocationToWhatsApp();
     }
 }
 
- 
+function handleLocationError(error) {
+    console.error("Location Error:", error);
+
+    switch (error.code) {
+        case 1:
+            alert("Location permission denied. Please allow location access.");
+            break;
+        case 2:
+            alert("Location information is unavailable. Please try again.");
+            break;
+        case 3:
+            alert("Location request timed out. Please try again.");
+            break;
+        default:
+            alert("Unable to detect your current location.");
+    }
+
+    if (pendingWhatsAppWindow && !pendingWhatsAppWindow.closed) {
+        pendingWhatsAppWindow.close();
+    }
+
+    pendingWhatsAppWindow = null;
+}
 
 // =====================================
-// FORWARD GEOCODING
-// Address → Coordinates
+// ADDRESS SEARCH
 // =====================================
 
 async function geocodeAddress(address) {
-
-    if (!address) {
-
-        throw new Error(
-            "Address is empty."
-        );
-
+    if (!address || !address.trim()) {
+        throw new Error("Address is empty.");
     }
-
 
     const url =
-        `${ORS_BASE_URL}/pelias/v1/search` +
+        `${ORS_API_BASE_URL}/geocode/search` +
         `?api_key=${ORS_API_KEY}` +
-        `&text=${encodeURIComponent(address)}`;
+        `&text=${encodeURIComponent(address.trim())}`;
 
-
-    const response =
-        await fetch(url);
-
+    const response = await fetch(url);
 
     if (!response.ok) {
-
-        throw new Error(
-            `Geocoding failed: ${response.status}`
-        );
-
+        throw new Error(`Address search failed: ${response.status}`);
     }
 
+    const data = await response.json();
 
-    const data =
-        await response.json();
-
-
-    console.log(
-        "Geocoding:",
-        address,
-        data
-    );
-
-
-    if (
-        !data.features ||
-        data.features.length === 0
-    ) {
-
-        throw new Error(
-            `Location not found: ${address}`
-        );
-
+    if (!data.features || !data.features.length) {
+        throw new Error(`Location not found: ${address}`);
     }
 
-
-    const coordinates =
-        data.features[0].geometry.coordinates;
-
+    const feature = data.features[0];
+    const coordinates = feature.geometry.coordinates;
 
     return {
-
         lng: coordinates[0],
-
         lat: coordinates[1],
-
         label:
-            data.features[0].properties.label ||
-            data.features[0].properties.name ||
+            feature.properties.label ||
+            feature.properties.name ||
             address
-
     };
-
 }
 
-
 // =====================================
-// LOCATION ERROR
-// =====================================
-
-function handleLocationError(error) {
-
-    console.error(
-        "Location Error:",
-        error
-    );
-
-
-    switch (error.code) {
-
-        case 1:
-
-            alert(
-                "Location permission denied. Please allow location access and try again."
-            );
-
-            break;
-
-
-        case 2:
-
-            alert(
-                "Location information is unavailable. Please try again."
-            );
-
-            break;
-
-
-        case 3:
-
-            alert(
-                "Location request timed out. Please try again."
-            );
-
-            break;
-
-
-        default:
-
-            alert(
-                "Unable to detect your current location."
-            );
-
-    }
-
-}
-
-
-// =====================================
-// VOICE SEARCH
+// DESTINATION AUTOCOMPLETE
 // =====================================
 
-function initializeVoiceSearch() {
+function initializeDestinationInput() {
+    const dropInput = document.getElementById("drop");
+    if (!dropInput) return;
 
-    const micBtn =
-        document.getElementById("micBtn");
+    let datalist = document.getElementById("dropSuggestions");
 
-
-    if (!micBtn) return;
-
-
-    micBtn.addEventListener(
-        "click",
-        startVoiceSearch
-    );
-
-}
-
-
-// =====================================
-// START VOICE SEARCH
-// =====================================
-
-function startVoiceSearch() {
-
-    const SpeechRecognition =
-        window.SpeechRecognition ||
-        window.webkitSpeechRecognition;
-
-
-    if (!SpeechRecognition) {
-
-        alert(
-            "Voice search is not supported in this browser."
-        );
-
-        return;
-
+    if (!datalist) {
+        datalist = document.createElement("datalist");
+        datalist.id = "dropSuggestions";
+        document.body.appendChild(datalist);
     }
 
-
-    const recognition =
-        new SpeechRecognition();
-
-
-    recognition.lang =
-        "hi-IN";
-
-    recognition.interimResults =
-        false;
-
-    recognition.maxAlternatives =
-        1;
-
-
-recognition.onstart = function() {
-  document.getElementById('micBtn').classList.add('listening');
-  document.getElementById('micBtn').innerText = "Listening...";
-};
-
-recognition.onend = function() {
-  document.getElementById('micBtn').classList.remove('listening');
-  document.getElementById('micBtn').innerText = "🎤 Start";
-
-    };
-
-
-    recognition.onresult = (event) => {
-
-        const text =
-            event.results[0][0].transcript;
-
-
-        const dropInput =
-            document.getElementById("drop");
-
-
-        if (dropInput) {
-
-            dropInput.value =
-                text;
-
-        }
-
-
-        console.log(
-            "Voice destination:",
-            text
-        );
-
-    };
-
-
-    recognition.onerror = (event) => {
-
-        console.error(
-            "Voice recognition error:",
-            event.error
-        );
-
-    };
-
-}
-
-
-// =====================================
-// BUTTON EVENTS
-// =====================================
-
-function bindButtons() {
-
-    const locationBtn =
-        document.getElementById("locationBtn");
-
-
-    const bookBtn =
-        document.getElementById("bookBtn");
-
-
-    const callBtn =
-        document.getElementById("callBtn");
-
-
-    const confirmBookingBtn =
-        document.getElementById(
-            "confirmBookingBtn"
-        );
-
-
-    const editBookingBtn =
-        document.getElementById(
-            "editBookingBtn"
-        );
-
-    const sendLocationBtn =
-    document.getElementById("sendLocationBtn");
-
-if (sendLocationBtn) {
-    sendLocationBtn.addEventListener(
-        "click",
-        () => detectLocation(true)
-    );
-}
-
-    // Location
-    if (locationBtn) {
-
-        locationBtn.addEventListener(
-            "click",
-            detectLocation
-        );
-
-    }
-
-
-    // Book Now
-    if (bookBtn) {
-
-        bookBtn.addEventListener(
-            "click",
-            calculateBooking
-        );
-
-    }
-
-
-    // Call
-    if (callBtn) {
-
-        callBtn.addEventListener(
-            "click",
-            makeCall
-        );
-
-    }
-
-
-    // Confirm Booking
-    if (confirmBookingBtn) {
-
-        confirmBookingBtn.addEventListener(
-            "click",
-            confirmBooking
-        );
-
-    }
-
-
-    // Edit Booking
-    if (editBookingBtn) {
-
-        editBookingBtn.addEventListener(
-            "click",
-            editBooking
-        );
-
-    }
-
-}
-
-
-// =====================================
-// CALCULATE BOOKING
-// =====================================
-
-async function calculateBooking() {
-
-    const pickupInput =
-        document.getElementById("pickup");
-
-
-    const dropInput =
-        document.getElementById("drop");
-
-
-    if (!pickupInput || !dropInput) {
-
-        console.error(
-            "Pickup or drop input not found."
-        );
-
-        return;
-
-    }
-
-
-    const pickup =
-        pickupInput.value.trim();
-
-
-    const drop =
-        dropInput.value.trim();
-
-    // सुझाव लाने का कॉमन फंक्शन
-async function fetchSuggestions(query) {
-  if (!query || query.length < 3) return [];
-  const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=in&addressdetails=1&limit=5`;
-
-  try {
-    const res = await fetch(url);
-    const data = await res.json();
-    return data.map(item => ({
-      name: item.display_name,
-      lat: parseFloat(item.lat),
-      lon: parseFloat(item.lon)
-    }));
-  } catch (err) {
-    console.error("Autocomplete Error:", err);
-    return [];
-  }
-}
-
-// सेटअप फंक्शन जो इनपुट से जुड़ेगा
-function setupAutocomplete(inputId, listId) {
-  const inputElem = document.getElementById(inputId);
-  const listElem = document.getElementById(listId);
-
-  if (!inputElem || !listElem) return;
-
-  inputElem.addEventListener("input", async (e) => {
-    const query = e.target.value;
-    listElem.innerHTML = ""; // पुरानी लिस्ट साफ करें
-
-    if (query.length < 3) return;
-
-    const suggestions = await fetchSuggestions(query);
-
-    suggestions.forEach(item => {
-      const li = document.createElement("li");
-      li.textContent = item.name;
-      li.style.padding = "8px 12px";
-      li.style.cursor = "pointer";
-      li.style.borderBottom = "1px solid #eee";
-      li.style.background = "#fff";
-      li.style.fontSize = "14px";
-
-      // माउस ले जाने पर रंग बदले
-      li.addEventListener("mouseenter", () => li.style.background = "#f0f0f0");
-      li.addEventListener("mouseleave", () => li.style.background = "#fff");
-
-      // जब यूजर किसी सुझाव पर क्लिक करे
-      li.addEventListener("click", () => {
-        inputElem.value = item.name;
-        inputElem.dataset.lat = item.lat; // लेट सहेजें
-        inputElem.dataset.lon = item.lon; // लॉन्ग सहेजें
-        listElem.innerHTML = "";          // लिस्ट बंद करें
-      });
-
-      listElem.appendChild(li);
-    });
-  });
-
-  // बाहर क्लिक करने पर लिस्ट छिप जाए
-  document.addEventListener("click", (e) => {
-    if (!inputElem.contains(e.target) && !listElem.contains(e.target)) {
-      listElem.innerHTML = "";
-    }
-  });
-}
-
-// दोनों इनपुट पर ऑटो-सजेशन चालू करें
-setupAutocomplete("pickup", "pickup-suggestions");
-setupAutocomplete("destination", "destination-suggestions");
-
-
-
-
-    // =================================
-    // VALIDATION
-    // =================================
-
-    if (!pickup || !drop) {
-
-        alert(
-            "Please Enter Pickup & Destination"
-        );
-
-        return;
-
-    }
-
-
-    try {
-
-        // =================================
-        // SHOW CALCULATING
-        // =================================
-
-        document.getElementById(
-            "distance"
-        ).innerText =
-            "Calculating...";
-
-
-        document.getElementById(
-            "fare"
-        ).innerText =
-            "₹--";
-
-
-        // =================================
-        // PICKUP GEOCODING
-        // =================================
-
-        console.log(
-            "Searching Pickup:",
-            pickup
-        );
-
-
-        const pickupLocation =
-            await geocodeAddress(
-                pickup
-            );
-
-
-        console.log(
-            "Pickup Coordinates:",
-            pickupLocation.lat,
-            pickupLocation.lng
-        );
-
-
-        // =================================
-        // DESTINATION GEOCODING
-        // =================================
-
-        console.log(
-            "Searching Destination:",
-            drop
-        );
-
-
-        const dropLocation =
-            await geocodeAddress(
-                drop
-            );
-
-
-        console.log(
-            "Drop Coordinates:",
-            dropLocation.lat,
-            dropLocation.lng
-        );
-
-
-        // =================================
-        // GET ROUTE
-        // =================================
-
-        const routeUrl =
-            `${ORS_BASE_URL}/openrouteservice/v2/directions/driving-car` +
-            `?api_key=${ORS_API_KEY}` +
-            `&start=${pickupLocation.lng},${pickupLocation.lat}` +
-            `&end=${dropLocation.lng},${dropLocation.lat}`;
-
-
-        console.log(
-            "Route URL:",
-            routeUrl
-        );
-
-
-        const routeResponse =
-            await fetch(routeUrl);
-
-
-        if (!routeResponse.ok) {
-
-            throw new Error(
-                `Route request failed: ${routeResponse.status}`
-            );
-
-        }
-
-
-        const routeData =
-            await routeResponse.json();
-
-
-        if (
-            !routeData.features ||
-            routeData.features.length === 0
-        ) {
-
-            throw new Error(
-                "Route not found."
-            );
-
-        }
-
-
-        // =================================
-        // DISTANCE
-        // =================================
-
-        const distanceKM =
-            routeData
-                .features[0]
-                .properties
-                .summary
-                .distance / 1000;
-
-
-        // =================================
-        // FARE
-        // =================================
-
-        const fare =
-            Math.round(
-                distanceKM * RATE_PER_KM
-            );
-
-
-        // =================================
-        // SHOW DISTANCE
-        // =================================
-
-        const distanceElement =
-            document.getElementById(
-                "distance"
-            );
-
-
-        if (distanceElement) {
-
-            distanceElement.innerText =
-                distanceKM.toFixed(1) +
-                " km";
-
-        }
-
-
-        // =================================
-        // SHOW FARE
-        // =================================
-
-        const fareElement =
-            document.getElementById(
-                "fare"
-            );
-
-
-        if (fareElement) {
-
-            fareElement.innerText =
-                "₹" + fare;
-
-        }
-
-
-        // =================================
-        // SAVE BOOKING DATA
-        // =================================
-
-        currentBooking = {
-
-            pickup: pickup,
-
-            pickupLabel:
-                pickupLocation.label,
-
-            pickupLat:
-                pickupLocation.lat,
-
-            pickupLng:
-                pickupLocation.lng,
-
-
-            drop: drop,
-
-            dropLabel:
-                dropLocation.label,
-
-            dropLat:
-                dropLocation.lat,
-
-            dropLng:
-                dropLocation.lng,
-
-
-            distance:
-                distanceKM,
-
-            fare:
-                fare
-
-        };
-
-
-        // =================================
-        // SHOW CONFIRMATION
-        // =================================
-
-        const confirmPickup =
-            document.getElementById(
-                "confirmPickup"
-            );
-
-
-        const confirmDrop =
-            document.getElementById(
-                "confirmDrop"
-            );
-
-
-        const confirmDistance =
-            document.getElementById(
-                "confirmDistance"
-            );
-
-
-        const confirmFare =
-            document.getElementById(
-                "confirmFare"
-            );
-
-
-        if (confirmPickup) {
-
-            confirmPickup.innerText =
-                pickupLocation.label;
-
-        }
-
-
-        if (confirmDrop) {
-
-            confirmDrop.innerText =
-                dropLocation.label;
-
-        }
-
-
-        if (confirmDistance) {
-
-            confirmDistance.innerText =
-                distanceKM.toFixed(1) +
-                " km";
-
-        }
-
-
-        if (confirmFare) {
-
-            confirmFare.innerText =
-                "₹" + fare;
-
-        }
-
-
-        const confirmation =
-            document.getElementById(
-                "bookingConfirmation"
-            );
-
-
-        if (confirmation) {
-
-            confirmation.classList.add(
-                "show"
-            );
-
-        }
-
-
-        console.log(
-            "BOOKING CALCULATED:",
-            currentBooking
-        );
-
-    }
-
-
-    catch (error) {
-
-        console.error(
-            "Booking Calculation Error:",
-            error
-        );
-
-
-        document.getElementById(
-            "distance"
-        ).innerText =
-            "--";
-
-
-        document.getElementById(
-            "fare"
-        ).innerText =
-            "₹--";
-
-
-        alert(
-            "Location or route could not be found. Please check the addresses."
-        );
-
-    }
-
-}
-
-// यह फाइनल फंक्शन जोड़ें 
-function getFinalDistanceAndFare(pickupLat, pickupLon, dropLat, dropLon, apiDistance) {
-    let distance = apiDistance; 
-    // अगर API से दूरी न मिले या 0 हो (गांव या लोकल सिटी के लिए) 
-    if (!distance || distance <= 0) { 
-        const R = 6371; // Earth radius in KM 
-        const dLat = ((dropLat - pickupLat) * Math.PI) / 180;
-        const dLon = ((dropLon - pickupLon) * Math.PI) / 180; 
-        const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + 
-                  Math.cos((pickupLat * Math.PI) / 180) * Math.cos((dropLat * Math.PI) / 180) *
-                  Math.sin(dLon / 2) * Math.sin(dLon / 2); 
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)); 
-        const straightKm = R * c; 
-        
-        distance = Math.max(1, Math.round((straightKm * 1.2) * 10) / 10); // सड़क के मोड़ के लिए 20% एक्स्ट्रा } /
-        
-    // किराया कैलकुलेशन (न्यूनतम ₹50 और ₹15 प्रति किमी) 
-        const minFare = 50;
-        const ratePerKm = 15;
-        let fare = Math.max(Math.round(distance * ratePerKm), minFare);
-        return { distance, fare }; 
-    }
-}
-
-                                     
-                                                                                       
-                                                                                       
-
-// =====================================
-// CONFIRM BOOKING
-// =====================================
-
-function confirmBooking() {
-
-    if (!currentBooking) {
-
-        alert(
-            "Please calculate your booking first."
-        );
-
-        return;
-
-    }
-
-
-    // =================================
-    // GENERATE BOOKING ID
-    // =================================
-
-    const now =
-        new Date();
-
-
-    const date =
-        String(
-            now.getDate()
-        ).padStart(2, "0");
-
-
-    const month =
-        String(
-            now.getMonth() + 1
-        ).padStart(2, "0");
-
-
-    const year =
-        String(
-            now.getFullYear()
-        ).slice(-2);
-
-
-    const random =
-        Math.floor(
-            1000 +
-            Math.random() * 9000
-        );
-
-
-    const bookingId =
-        `SS${date}${month}${year}-${random}`;
-
-
-    currentBooking.bookingId =
-        bookingId;
-
-
-    currentBooking.status =
-        "Pending";
-
-
-    console.log(
-        "BOOKING CREATED:",
-        currentBooking
-    );
-
-
-    // =================================
-    // SEND TO WHATSAPP
-    // =================================
-
-    sendConfirmedBooking(
-        currentBooking
-    );
-
-}
-
-
-// =====================================
-// EDIT BOOKING
-// =====================================
-
-function editBooking() {
-
-    const confirmation =
-        document.getElementById(
-            "bookingConfirmation"
-        );
-
-
-    if (confirmation) {
-
-        confirmation.classList.remove(
-            "show"
-        );
-
-    }
-
-
-    const pickupInput =
-        document.getElementById(
-            "pickup"
-        );
-
-
-    if (pickupInput) {
-
-        pickupInput.focus();
-
-    }
-
-}
-
-
-// ===================================
-// SEND CONFIRMED BOOKING TO SERVER
-// ===================================
-
-async function sendConfirmedBooking(booking) {
-    try {
-        console.log("Sending booking:", booking);
-
-        const response = await fetch(
-            "https://my-safer-web.vercel.app/api/send-booking",
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    bookingId: booking.bookingId,
-                    pickup: booking.pickupLabel,
-                    destination: booking.dropLabel,
-                    distance: Number(booking.distance).toFixed(1),
-                    fare: booking.fare
-                })
-            }
-        );
-
-        const responseText = await response.text();
-
-        console.log("API Status:", response.status);
-        console.log("API Response:", responseText);
-
-        let data;
-
-        try {
-            data = JSON.parse(responseText);
-        } catch {
-            throw new Error(
-                `Server returned invalid response: ${responseText}`
-            );
-        }
-
-        if (!response.ok) {
-            throw new Error(
-                data.message ||
-                `Server error: ${response.status}`
-            );
-        }
-
-        if (!data.success) {
-            throw new Error(
-                data.message ||
-                "WhatsApp server rejected the booking."
-            );
-        }
-
-        alert(
-            "Booking Confirmed! ✅\n\n" +
-            "Booking ID: " +
-            booking.bookingId
-        );
+    dropInput.setAttribute("list", "dropSuggestions");
+    dropInput.setAttribute("autocomplete", "off");
+
+    dropInput.addEventListener("input", () => {
+        currentBooking = null;
 
         const confirmation =
             document.getElementById("bookingConfirmation");
@@ -1125,51 +195,367 @@ async function sendConfirmedBooking(booking) {
             confirmation.classList.remove("show");
         }
 
-    } catch (error) {
+        clearTimeout(destinationSuggestTimer);
 
-        console.error("WHATSAPP BOOKING ERROR:", error);
+        if (destinationSuggestController) {
+            destinationSuggestController.abort();
+        }
+
+        const query = dropInput.value.trim();
+
+        if (query.length < 3) {
+            datalist.replaceChildren();
+            return;
+        }
+
+        destinationSuggestTimer = setTimeout(async () => {
+            try {
+                destinationSuggestController = new AbortController();
+
+                const url =
+                    `${ORS_API_BASE_URL}/geocode/autocomplete` +
+                    `?api_key=${ORS_API_KEY}` +
+                    `&text=${encodeURIComponent(query)}`;
+
+                const response = await fetch(url, {
+                    signal: destinationSuggestController.signal
+                });
+
+                if (!response.ok) return;
+
+                const data = await response.json();
+                datalist.replaceChildren();
+
+                (data.features || []).slice(0, 6).forEach(feature => {
+                    const label =
+                        feature.properties.label ||
+                        feature.properties.name;
+
+                    if (!label) return;
+
+                    const option = document.createElement("option");
+                    option.value = label;
+                    datalist.appendChild(option);
+                });
+            } catch (error) {
+                if (error.name !== "AbortError") {
+                    console.error("Destination suggestions error:", error);
+                }
+            }
+        }, 350);
+    });
+}
+
+// =====================================
+// VOICE SEARCH
+// =====================================
+
+function initializeVoiceSearch() {
+    const micBtn = document.getElementById("micBtn");
+
+    if (!micBtn) return;
+
+    micBtn.addEventListener("click", startVoiceSearch);
+}
+
+function startVoiceSearch() {
+    const SpeechRecognition =
+        window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+        alert("Voice search is not supported. Please try Google Chrome.");
+        return;
+    }
+
+    const micBtn = document.getElementById("micBtn");
+    const dropInput = document.getElementById("drop");
+
+    if (!dropInput) {
+        alert('Destination input with id="drop" was not found.');
+        return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = "hi-IN";
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.onstart = () => {
+        if (micBtn) {
+            micBtn.classList.add("listening");
+            micBtn.innerText = "Listening...";
+        }
+    };
+
+    recognition.onresult = event => {
+        const spokenText =
+            event.results?.[0]?.[0]?.transcript?.trim();
+
+        if (!spokenText) return;
+
+        dropInput.value = spokenText;
+        dropInput.dispatchEvent(new Event("input", { bubbles: true }));
+
+        console.log("Voice destination:", spokenText);
+    };
+
+    recognition.onerror = event => {
+        console.error("Voice recognition error:", event.error);
+        alert("Voice search failed. Please try again.");
+    };
+
+    recognition.onend = () => {
+        if (micBtn) {
+            micBtn.classList.remove("listening");
+            micBtn.innerText = "🎤 Start";
+        }
+    };
+
+    try {
+        recognition.start();
+    } catch (error) {
+        console.error("Could not start voice search:", error);
+    }
+}
+
+// =====================================
+// BUTTON EVENTS
+// =====================================
+
+function bindButtons() {
+    const bind = (id, event, handler) => {
+        const element = document.getElementById(id);
+
+        if (element) {
+            element.addEventListener(event, handler);
+        }
+    };
+
+    bind("locationBtn", "click", () => detectLocation());
+    bind("bookBtn", "click", calculateBooking);
+    bind("callBtn", "click", makeCall);
+    bind("confirmBookingBtn", "click", confirmBooking);
+    bind("editBookingBtn", "click", editBooking);
+    bind("sendLocationBtn", "click", () => detectLocation(true));
+}
+
+// =====================================
+// CALCULATE DISTANCE AND FARE
+// =====================================
+
+async function calculateBooking() {
+    const pickupInput = document.getElementById("pickup");
+    const dropInput = document.getElementById("drop");
+
+    const distanceOutput = document.getElementById("distance");
+    const fareOutput = document.getElementById("fare");
+
+    if (!pickupInput || !dropInput) {
+        console.error('Required inputs "pickup" and "drop" were not found.');
+        alert("Booking inputs could not be found. Please check the page.");
+        return;
+    }
+
+    const pickup = pickupInput.value.trim();
+    const drop = dropInput.value.trim();
+
+    if (!pickup || !drop) {
+        alert("Please enter your pickup location and destination.");
+        return;
+    }
+
+    currentBooking = null;
+
+    const confirmation =
+        document.getElementById("bookingConfirmation");
+
+    if (confirmation) {
+        confirmation.classList.remove("show");
+    }
+
+    if (distanceOutput) distanceOutput.innerText = "Calculating...";
+    if (fareOutput) fareOutput.innerText = "₹--";
+
+    try {
+        const pickupLocation = await geocodeAddress(pickup);
+        const dropLocation = await geocodeAddress(drop);
+
+        const routeUrl =
+            `${ORS_API_BASE_URL}/v2/directions/driving-car` +
+            `?api_key=${ORS_API_KEY}` +
+            `&start=${pickupLocation.lng},${pickupLocation.lat}` +
+            `&end=${dropLocation.lng},${dropLocation.lat}`;
+
+        const routeResponse = await fetch(routeUrl);
+
+        if (!routeResponse.ok) {
+            throw new Error(`Route request failed: ${routeResponse.status}`);
+        }
+
+        const routeData = await routeResponse.json();
+        const distanceMeters =
+            routeData.features?.[0]?.properties?.summary?.distance;
+
+        if (typeof distanceMeters !== "number") {
+            throw new Error("Route distance was not returned.");
+        }
+
+        const distanceKM = distanceMeters / 1000;
+        const fare = Math.round(distanceKM * RATE_PER_KM);
+
+        if (distanceOutput) {
+            distanceOutput.innerText = `${distanceKM.toFixed(1)} km`;
+        }
+
+        if (fareOutput) {
+            fareOutput.innerText = `₹${fare}`;
+        }
+
+        currentBooking = {
+            pickup,
+            pickupLabel: pickupLocation.label,
+            pickupLat: pickupLocation.lat,
+            pickupLng: pickupLocation.lng,
+            drop,
+            dropLabel: dropLocation.label,
+            dropLat: dropLocation.lat,
+            dropLng: dropLocation.lng,
+            distance: distanceKM,
+            fare
+        };
+
+        const setText = (id, value) => {
+            const element = document.getElementById(id);
+            if (element) element.innerText = value;
+        };
+
+        setText("confirmPickup", pickupLocation.label);
+        setText("confirmDrop", dropLocation.label);
+        setText("confirmDistance", `${distanceKM.toFixed(1)} km`);
+        setText("confirmFare", `₹${fare}`);
+
+        if (confirmation) {
+            confirmation.classList.add("show");
+        }
+
+        console.log("BOOKING CALCULATED:", currentBooking);
+    } catch (error) {
+        console.error("Booking Calculation Error:", error);
+
+        if (distanceOutput) distanceOutput.innerText = "--";
+        if (fareOutput) fareOutput.innerText = "₹--";
 
         alert(
-            "WhatsApp booking failed ❌\n\n" +
-            error.message
+            "Location or route could not be found. Check the addresses and API key."
         );
     }
 }
+
+// =====================================
+// CONFIRM BOOKING
+// =====================================
+
+function confirmBooking() {
+    if (!currentBooking) {
+        alert("Please calculate your booking first.");
+        return;
+    }
+
+    const now = new Date();
+    const date = String(now.getDate()).padStart(2, "0");
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const year = String(now.getFullYear()).slice(-2);
+    const random = Math.floor(1000 + Math.random() * 9000);
+
+    currentBooking.bookingId = `SS${date}${month}${year}-${random}`;
+    currentBooking.status = "Pending";
+
+    sendConfirmedBooking(currentBooking);
+}
+
+// =====================================
+// EDIT BOOKING
+// =====================================
+
+function editBooking() {
+    const confirmation =
+        document.getElementById("bookingConfirmation");
+
+    if (confirmation) {
+        confirmation.classList.remove("show");
+    }
+
+    const dropInput = document.getElementById("drop");
+
+    if (dropInput) {
+        dropInput.focus();
+    }
+}
+
+// =====================================
+// SEND BOOKING DETAILS TO WHATSAPP
+// No booking server required
+// =====================================
+
+function sendConfirmedBooking(booking) {
+    const message = [
+        "🚚 SAFER SAMAN - BOOKING REQUEST",
+        "",
+        `Booking ID: ${booking.bookingId}`,
+        `Pickup: ${booking.pickupLabel || booking.pickup}`,
+        `Destination: ${booking.dropLabel || booking.drop}`,
+        `Distance: ${Number(booking.distance).toFixed(1)} km`,
+        `Fare: ₹${booking.fare}`,
+        "Status: Pending",
+        "",
+        "Please confirm this booking."
+    ].join("\n");
+
+    const whatsappURL =
+        "https://wa.me/917974483199?text=" +
+        encodeURIComponent(message);
+
+    window.open(whatsappURL, "_blank");
+
+    alert(
+        "Booking details are ready in WhatsApp. Press Send to submit.\n\n" +
+        `Booking ID: ${booking.bookingId}`
+    );
+}
+
 // =====================================
 // SEND CURRENT LOCATION TO WHATSAPP
 // =====================================
 
 async function sendCurrentLocationToWhatsApp() {
-    // 1. चेक करें कि लेटेस्ट कोऑर्डिनेट्स मौजूद हैं या नहीं
-    if (!currentLat || !currentLng) {
-        alert("कृपया पहले 'Detect Location' पर क्लिक करके लोकेशन फेच करें!");
+    if (currentLat == null || currentLng == null) {
+        alert("Please detect your current location first.");
         return;
     }
 
-    // 2. Google Maps का सटीक लिंक बनाएं
-    const mapsLink = `https://www.google.com/maps?q=${currentLat},${currentLng}`;
-    
-    // 3. WhatsApp पर भेजने के लिए मैसेज तैयार करें
-    const message = encodeURIComponent(
-        `Hello culiGO! 🚚\nयहाँ से मेरा सामान उठाना है (Pickup Location):\n📍 एड्रेस: ${currentAddress}\n🗺️ Google Maps Link: ${mapsLink}`
-    );
+    const mapsLink =
+        `https://www.google.com/maps?q=${currentLat},${currentLng}`;
 
-    // 4. अपना WhatsApp नंबर यहाँ डालें (देश के कोड के साथ, जैसे 91 लगाकार)
-    const phoneNumber = "917974483199"; // <--- यहाँ अपना व्हाट्सएप नंबर बदल लें
+    const message = [
+        "🚚 SAFER SAMAN - PICKUP LOCATION",
+        "",
+        `Pickup Address: ${currentAddress || "Address unavailable"}`,
+        `Google Maps: ${mapsLink}`,
+        "",
+        "Please arrange pickup from this location."
+    ].join("\n");
 
-    // 5. WhatsApp चैट खोलें
-    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${message}`;
-    
-    window.open(whatsappUrl, '_blank');
+    const whatsappURL =
+        "https://wa.me/917974483199?text=" +
+        encodeURIComponent(message);
+
+    window.open(whatsappURL, "_blank");
 }
 
 // =====================================
-// DIRECT PHONE CALL
+// PHONE CALL
 // =====================================
 
 function makeCall() {
-
-    window.location.href =
-        "tel:+919244130492";
-
+    window.location.href = "tel:+919244130492";
 }
