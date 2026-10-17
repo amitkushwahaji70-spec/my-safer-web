@@ -166,8 +166,10 @@ async function geocodeAddress(address) {
     };
 }
 
+
 // =====================================
 // DESTINATION AUTOCOMPLETE
+// Nearby villages/cities priority
 // =====================================
 
 function initializeDestinationInput() {
@@ -203,7 +205,7 @@ function initializeDestinationInput() {
 
         const query = dropInput.value.trim();
 
-        if (query.length < 3) {
+        if (query.length < 2) {
             datalist.replaceChildren();
             return;
         }
@@ -212,24 +214,47 @@ function initializeDestinationInput() {
             try {
                 destinationSuggestController = new AbortController();
 
+                const params = new URLSearchParams({
+                    api_key: ORS_API_KEY,
+                    text: query,
+                    "boundary.country": "IND",
+                    size: "10"
+                });
+
+                // Current location ke aas-paas search ko focus karein
+                if (
+                    typeof currentLat === "number" &&
+                    typeof currentLng === "number"
+                ) {
+                    params.set("focus.point.lat", currentLat);
+                    params.set("focus.point.lon", currentLng);
+                }
+
                 const url =
-                    `${ORS_API_BASE_URL}/geocode/autocomplete` +
-                    `?api_key=${ORS_API_KEY}` +
-                    `&text=${encodeURIComponent(query)}`;
+                    `${ORS_API_BASE_URL}/geocode/search?${params.toString()}`;
 
                 const response = await fetch(url, {
                     signal: destinationSuggestController.signal
                 });
 
-                if (!response.ok) return;
+                if (!response.ok) {
+                    console.error(
+                        "Destination search failed:",
+                        response.status,
+                        await response.text()
+                    );
+                    return;
+                }
 
                 const data = await response.json();
                 datalist.replaceChildren();
 
-                (data.features || []).slice(0, 6).forEach(feature => {
+                (data.features || []).slice(0, 10).forEach(feature => {
+                    const props = feature.properties || {};
+
                     const label =
-                        feature.properties.label ||
-                        feature.properties.name;
+                        props.label ||
+                        props.name;
 
                     if (!label) return;
 
@@ -237,14 +262,19 @@ function initializeDestinationInput() {
                     option.value = label;
                     datalist.appendChild(option);
                 });
+
             } catch (error) {
                 if (error.name !== "AbortError") {
-                    console.error("Destination suggestions error:", error);
+                    console.error(
+                        "Destination suggestions error:",
+                        error
+                    );
                 }
             }
         }, 350);
     });
 }
+```
 
 // =====================================
 // VOICE SEARCH
@@ -529,6 +559,7 @@ function sendConfirmedBooking(booking) {
 
 async function sendCurrentLocationToWhatsApp() {
     if (currentLat == null || currentLng == null) {
+        console.log("Send Location clicked:", currentLat, currentLng, currentAddress);
         alert("Please detect your current location first.");
         return;
     }
