@@ -35,11 +35,15 @@ window.addEventListener("load", () => {
 // Existing location flow retained
 // =====================================
 
+const LOCATIONIQ_API_KEY = "pk.4c006a5c294e6ea44c55d0f1fa4b0226";
+
 function detectLocation(sendToWhatsApp = false) {
     if (!navigator.geolocation) {
         alert("Your browser does not support location.");
         return;
     }
+
+    console.log("Requesting current location...");
 
     navigator.geolocation.getCurrentPosition(
         position => successLocation(position, sendToWhatsApp),
@@ -56,38 +60,45 @@ async function successLocation(position, sendToWhatsApp = false) {
     currentLat = position.coords.latitude;
     currentLng = position.coords.longitude;
 
+    const accuracy = position.coords.accuracy;
+
+    console.log(
+        `GPS Lat/Lng: ${currentLat}, ${currentLng} (Accuracy: ${accuracy}m)`
+    );
+
     const pickupInput = document.getElementById("pickup");
 
     if (pickupInput) {
-        pickupInput.value = "Detecting location...";
+        pickupInput.value = "सटीक एड्रेस डिटेक्ट हो रहा है...";
     }
 
     try {
         const url =
-            `${ORS_BASE_URL}/pelias/v1/reverse` +
-            `?api_key=${ORS_API_KEY}` +
-            `&point.lon=${currentLng}` +
-            `&point.lat=${currentLat}`;
+            `https://us1.locationiq.com/v1/reverse.php` +
+            `?key=${LOCATIONIQ_API_KEY}` +
+            `&lat=${currentLat}` +
+            `&lon=${currentLng}` +
+            `&format=json&accept-language=hi,en`;
 
         const response = await fetch(url);
 
         if (!response.ok) {
-            throw new Error(`Reverse geocoding failed: ${response.status}`);
+            throw new Error(
+                `LocationIQ failed with status: ${response.status}`
+            );
         }
 
         const data = await response.json();
 
-        if (data.features && data.features.length > 0) {
-            currentAddress =
-                data.features[0].properties.label ||
-                data.features[0].properties.name ||
-                `${currentLat.toFixed(6)}, ${currentLng.toFixed(6)}`;
+        if (data && data.display_name) {
+            currentAddress = data.display_name;
         } else {
             currentAddress =
                 `${currentLat.toFixed(6)}, ${currentLng.toFixed(6)}`;
         }
     } catch (error) {
-        console.error("Reverse geocoding error:", error);
+        console.error("LocationIQ Error:", error);
+
         currentAddress =
             `${currentLat.toFixed(6)}, ${currentLng.toFixed(6)}`;
     }
@@ -96,7 +107,7 @@ async function successLocation(position, sendToWhatsApp = false) {
         pickupInput.value = currentAddress;
     }
 
-    console.log("Current Address:", currentAddress);
+    console.log("Input Text Address:", currentAddress);
 
     if (sendToWhatsApp) {
         await sendCurrentLocationToWhatsApp();
@@ -108,14 +119,23 @@ function handleLocationError(error) {
 
     switch (error.code) {
         case 1:
-            alert("Location permission denied. Please allow location access.");
+            alert(
+                "Location permission denied. Please allow location access and try again."
+            );
             break;
+
         case 2:
-            alert("Location information is unavailable. Please try again.");
+            alert(
+                "Location information is unavailable. Please try again."
+            );
             break;
+
         case 3:
-            alert("Location request timed out. Please try again.");
+            alert(
+                "Location request timed out. Please try again."
+            );
             break;
+
         default:
             alert("Unable to detect your current location.");
     }
@@ -126,6 +146,7 @@ function handleLocationError(error) {
 
     pendingWhatsAppWindow = null;
 }
+
 
 // =====================================
 // ADDRESS SEARCH
