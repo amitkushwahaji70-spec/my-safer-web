@@ -148,53 +148,46 @@ function handleLocationError(error) {
 }
 
 
-
 /* =========================================
-   SMART PLACE SEARCH
-   1. Sirf jagah: pickup ke nearest results
-   2. City/town mentioned: us city/town aur
-      aas-paas ke areas/villages ko priority
-   3. Suggestions: place, city/town, district
+   HYBRID LOCATION SEARCH
+   ORS first, Photon fallback
 ========================================= */
 
 function normalizePlaceText(value) {
     return String(value || "")
-        .toLocaleLowerCase("hi-IN")
-        .replace(/[.,،؛:()\[\]{}]/g, " ")
+        .toLowerCase()
+        .replace(/[.,،؛:()[\]{}]/g, " ")
         .replace(/\s+/g, " ")
         .trim();
 }
 
-function getPlaceAdminText(props = {}) {
-    return normalizePlaceText([
-        props.locality,
-        props.localadmin,
-        props.municipality,
-        props.borough,
-        props.county,
-        props.region
-    ].filter(Boolean).join(" "));
-}
-
-function getPlaceDisplayLabel(props = {}) {
-    const name = props.name || props.street || props.label;
+function getPlaceLabel(props = {}) {
+    const name = props.name || props.street || "";
     const city =
         props.locality ||
         props.localadmin ||
-        props.municipality ||
-        props.borough;
+        props.city ||
+        props.town ||
+        props.village ||
+        "";
+    const district =
+        props.county ||
+        props.district ||
+        "";
+    const state = props.region || props.state || "";
 
-    const district = props.county;
     const parts = [];
 
-    [name, city, district].filter(Boolean).forEach(part => {
-        const clean = String(part).trim();
+    [name, city, district, state].forEach(value => {
+        if (!value) return;
+
+        const clean = String(value).trim();
 
         if (
             clean &&
             !parts.some(
-                existing =>
-                    normalizePlaceText(existing) ===
+                old =>
+                    normalizePlaceText(old) ===
                     normalizePlaceText(clean)
             )
         ) {
@@ -202,198 +195,197 @@ function getPlaceDisplayLabel(props = {}) {
         }
     });
 
-    // Provider ke paas district na ho to full address rakhein.
-    if (!district && props.label) {
-        return props.label;
-    }
-
-    return parts.length > 1
-        ? parts.join(", ")
-        : (props.label || name || "");
+    return parts.join(", ") || props.label || name;
 }
 
 function haversineKm(lat1, lng1, lat2, lng2) {
-    const values = [lat1, lng1, lat2, lng2];
-
-    if (!values.every(
-        value => typeof value === "number" &&
-        Number.isFinite(value)
-    )) {
-        return Number.POSITIVE_INFINITY;
-    }
-
-    const toRad = value => value * Math.PI / 180;
-    const dLat = toRad(lat2 - lat1);
-    const dLng = toRad(lng2 - lng1);
+    const rad = value => value * Math.PI / 180;
+    const dLat = rad(lat2 - lat1);
+    const dLng = rad(lng2 - lng1);
 
     const a =
         Math.sin(dLat / 2) ** 2 +
-        Math.cos(toRad(lat1)) *
-        Math.cos(toRad(lat2)) *
+        Math.cos(rad(lat1)) *
+        Math.cos(rad(lat2)) *
         Math.sin(dLng / 2) ** 2;
 
     return 6371 * 2 *
         Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-function rankPlaceFeatures(
-    features,
-    query,
-    focusLocation = null
-) {
-    const normalizedQuery = normalizePlaceText(query);
-    const queryTokens = normalizedQuery.split(" ").filter(Boolean);
+function rankPlaces(items, query, focus = null) {
+    const tokens = normalizePlaceText(query)
+        .split(" ")
+        .filter(Boolean);
 
-    const ranked = (features || []).map(feature => {
-        const props = feature.properties || {};
-
-        const nameText = normalizePlaceText([
-            props.name,
-            props.street
-        ].filter(Boolean).join(" "));
-
-        const labelText = normalizePlaceText(
-            props.label || props.name || ""
+    return items.map(item => {
+        const props = item.properties || {};
+        const label = item.label || getPlaceLabel(props);
+        const name = normalizePlaceText(
+            [props.name, props.street].filter(Boolean).join(" ")
         );
+        const full = normalizePlaceText(label);
 
-        const adminText = getPlaceAdminText(props);
-        const adminTokens = adminText.split(" ").filter(Boolean);
+        let score = 0;
 
-        const nameMatches = queryTokens.filter(
-            token => nameText.includes(token)
-        ).length;
+        tokens.forEach(token => {
+            if (name.includes(token)) score += 5;
+            else if (full.includes(token)) score += 2;
+        });
 
-        const labelMatches = queryTokens.filter(
-            token => labelText.includes(token)
-        ).length;
-
-        const contextMatches = queryTokens.filter(
-            token => token.length >= 3 &&
-                adminTokens.some(admin => admin.includes(token))
-        ).length;
-
-        const coords = feature.geometry?.coordinates || [];
+        const coords = item.geometry?.coordinates || [];
         const lng = Number(coords[0]);
         const lat = Number(coords[1]);
 
-        const distanceKm = focusLocation
-            ? haversineKm(
-                focusLocation.lat,
-                focusLocation.lng,
-                lat,
-                lng
-            )
-            : Number.POSITIVE_INFINITY;
-
-        /*
-          Multi-word query mein city/town context ko priority.
-          Single/short query mein pickup ke nearest matching places.
-        */
-        const hasContext = contextMatches > 0;
-        let score = nameMatches * 5 + labelMatches * 1.5;
-
-        if (hasContext) {
-            score += 22 + contextMatches * 6;
-        }
-
-        if (Number.isFinite(distanceKm)) {
-            score += hasContext
-                ? -distanceKm * 0.02
-                : -distanceKm * 0.8;
-        }
+        let distanceKm = Infinity;
 
         if (
-            queryTokens.length > 1 &&
-            queryTokens.every(token => labelText.includes(token))
+            focus &&
+            Number.isFinite(lat) &&
+            Number.isFinite(lng)
         ) {
-            score += 5;
+            distanceKm = haversineKm(
+                focus.lat, focus.lng, lat, lng
+            );
+
+            score -= distanceKm * 0.25;
         }
 
         return {
-            feature,
+            lat,
+            lng,
+            label,
             score,
-            distanceKm,
-            label: getPlaceDisplayLabel(props)
+            distanceKm
         };
-    });
-
-    ranked.sort((a, b) => b.score - a.score);
-    return ranked;
+    })
+    .filter(item =>
+        Number.isFinite(item.lat) &&
+        Number.isFinite(item.lng) &&
+        item.label
+    )
+    .sort((a, b) => b.score - a.score);
 }
 
-async function searchPlaceFeatures(
-    query,
-    focusLocation = null,
-    signal = undefined
-) {
-    const params = new URLSearchParams({
-        api_key: ORS_API_KEY,
-        text: query,
-        "boundary.country": "IND",
-        size: "20"
-    });
+async function searchPlaces(query, focus = null, signal) {
+    const cleanQuery = String(query || "").trim();
 
-    const focus = focusLocation || (
-        typeof currentLat === "number" &&
-        typeof currentLng === "number"
+    if (!cleanQuery) return [];
+
+    const searchFocus = focus || (
+        Number.isFinite(currentLat) &&
+        Number.isFinite(currentLng)
             ? { lat: currentLat, lng: currentLng }
             : null
     );
 
-    if (focus) {
-        params.set("focus.point.lat", focus.lat);
-        params.set("focus.point.lon", focus.lng);
+    // 1. Try OpenRouteService
+    try {
+        const params = new URLSearchParams({
+            api_key: ORS_API_KEY,
+            text: cleanQuery,
+            "boundary.country": "IND",
+            size: "15"
+        });
+
+        if (searchFocus) {
+            params.set("focus.point.lat", searchFocus.lat);
+            params.set("focus.point.lon", searchFocus.lng);
+        }
+
+        const response = await fetch(
+            `${ORS_API_BASE_URL}/geocode/search?${params}`,
+            { signal }
+        );
+
+        if (response.ok) {
+            const data = await response.json();
+
+            const orsItems = (data.features || []).map(feature => ({
+                properties: feature.properties || {},
+                geometry: feature.geometry,
+                label: getPlaceLabel(feature.properties || {})
+                    || feature.properties?.label
+            }));
+
+            const ranked = rankPlaces(
+                orsItems,
+                cleanQuery,
+                searchFocus
+            );
+
+            if (ranked.length) return ranked;
+        } else {
+            console.warn("ORS search status:", response.status);
+        }
+    } catch (error) {
+        if (error.name === "AbortError") throw error;
+        console.warn("ORS search failed; trying fallback:", error);
+    }
+
+    // 2. Fallback to Photon / OpenStreetMap-based search
+    const params = new URLSearchParams({
+        q: cleanQuery,
+        limit: "15",
+        lang: "en"
+    });
+
+    if (searchFocus) {
+        params.set("lat", searchFocus.lat);
+        params.set("lon", searchFocus.lng);
     }
 
     const response = await fetch(
-        `${ORS_API_BASE_URL}/geocode/search?${params.toString()}`,
-        signal ? { signal } : undefined
+        `https://photon.komoot.io/api/?${params}`,
+        { signal }
     );
 
     if (!response.ok) {
-        throw new Error(
-            `Place search failed: ${response.status}`
-        );
+        throw new Error(`Fallback search failed: ${response.status}`);
     }
 
     const data = await response.json();
 
-    return rankPlaceFeatures(
-        data.features || [],
-        query,
-        focus
+    const photonItems = (data.features || []).map(feature => {
+        const props = feature.properties || {};
+        const label = getPlaceLabel(props);
+
+        return {
+            properties: props,
+            geometry: feature.geometry,
+            label: label || props.name || ""
+        };
+    });
+
+    return rankPlaces(
+        photonItems,
+        cleanQuery,
+        searchFocus
     );
 }
 
-async function geocodeAddress(address, focusLocation = null) {
+
+/* =========================================
+   ADDRESS GEOCODING
+========================================= */
+
+async function geocodeAddress(address, focus = null) {
     if (!address || !address.trim()) {
         throw new Error("Address is empty.");
     }
 
-    const results = await searchPlaceFeatures(
-        address.trim(),
-        focusLocation
-    );
+    const results = await searchPlaces(address, focus);
 
-    const best = results.find(item =>
-        item.feature?.geometry?.coordinates
-    );
-
-    if (!best) {
+    if (!results.length) {
         throw new Error(`Location not found: ${address}`);
     }
 
-    const feature = best.feature;
-    const coords = feature.geometry.coordinates;
+    const best = results[0];
 
     return {
-        lng: Number(coords[0]),
-        lat: Number(coords[1]),
-        label:
-            best.label ||
-            feature.properties?.label ||
-            feature.properties?.name ||
-            address
+        lat: best.lat,
+        lng: best.lng,
+        label: best.label
     };
 }
 
@@ -445,7 +437,7 @@ function initializeDestinationInput() {
             destinationSuggestController = controller;
 
             try {
-                const results = await searchPlaceFeatures(
+                const results = await searchPlaces(
                     query,
                     null,
                     controller.signal
@@ -457,29 +449,23 @@ function initializeDestinationInput() {
 
                 const seen = new Set();
 
-                results.forEach(item => {
-                    if (!item.label) return;
+                results.forEach(place => {
+                    const label = place.label;
+                    const key = normalizePlaceText(label);
 
-                    const normalized =
-                        normalizePlaceText(item.label);
-
-                    if (seen.has(normalized)) return;
-                    seen.add(normalized);
+                    if (!label || seen.has(key)) return;
+                    seen.add(key);
 
                     const option = document.createElement("option");
-                    option.value = item.label;
+                    option.value = label;
                     datalist.appendChild(option);
                 });
-
             } catch (error) {
                 if (error.name !== "AbortError") {
-                    console.error(
-                        "Destination suggestions error:",
-                        error
-                    );
+                    console.error("Place suggestions failed:", error);
                 }
             }
-        }, 350);
+        }, 500);
     });
 }
 
@@ -618,11 +604,11 @@ async function calculateBooking() {
     try {
         const pickupLocation = await geocodeAddress(pickup);
 
-// Destination ko selected pickup ke hisaab se rank karein
-const dropLocation = await geocodeAddress(drop, {
-    lat: pickupLocation.lat,
-    lng: pickupLocation.lng
-});
+
+       const dropLocation = await geocodeAddress(drop, {
+          lat: pickupLocation.lat,
+          lng: pickupLocation.lng
+       });
 
         const routeUrl =
             `${ORS_API_BASE_URL}/v2/directions/driving-car` +
