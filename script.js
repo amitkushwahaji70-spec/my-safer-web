@@ -267,10 +267,16 @@ function rankPlaces(items, query, focus = null) {
     .sort((a, b) => b.score - a.score);
 }
 
+
+
 async function searchPlaces(query, focus = null, signal) {
     const cleanQuery = String(query || "").trim();
 
     if (!cleanQuery) return [];
+
+    const params = new URLSearchParams({
+        q: cleanQuery
+    });
 
     const searchFocus = focus || (
         Number.isFinite(currentLat) &&
@@ -279,89 +285,53 @@ async function searchPlaces(query, focus = null, signal) {
             : null
     );
 
-    // 1. Try OpenRouteService
-    try {
-        const params = new URLSearchParams({
-            api_key: ORS_API_KEY,
-            text: cleanQuery,
-            "boundary.country": "IND",
-            size: "15"
-        });
-
-        if (searchFocus) {
-            params.set("focus.point.lat", searchFocus.lat);
-            params.set("focus.point.lon", searchFocus.lng);
-        }
-
-        const response = await fetch(
-            `${ORS_API_BASE_URL}/geocode/search?${params}`,
-            { signal }
-        );
-
-        if (response.ok) {
-            const data = await response.json();
-
-            const orsItems = (data.features || []).map(feature => ({
-                properties: feature.properties || {},
-                geometry: feature.geometry,
-                label: getPlaceLabel(feature.properties || {})
-                    || feature.properties?.label
-            }));
-
-            const ranked = rankPlaces(
-                orsItems,
-                cleanQuery,
-                searchFocus
-            );
-
-            if (ranked.length) return ranked;
-        } else {
-            console.warn("ORS search status:", response.status);
-        }
-    } catch (error) {
-        if (error.name === "AbortError") throw error;
-        console.warn("ORS search failed; trying fallback:", error);
-    }
-
-    // 2. Fallback to Photon / OpenStreetMap-based search
-    const params = new URLSearchParams({
-        q: cleanQuery,
-        limit: "15",
-        lang: "en"
-    });
-
     if (searchFocus) {
-        params.set("lat", searchFocus.lat);
-        params.set("lon", searchFocus.lng);
+        params.set("lat", String(searchFocus.lat));
+        params.set("lon", String(searchFocus.lng));
     }
 
     const response = await fetch(
-        `https://photon.komoot.io/api/?${params}`,
-        { signal }
+        `/api/search-location?${params.toString()}`,
+        signal ? { signal } : undefined
     );
 
     if (!response.ok) {
-        throw new Error(`Fallback search failed: ${response.status}`);
+        throw new Error(
+            `Location search API failed: ${response.status}`
+        );
     }
 
     const data = await response.json();
 
-    const photonItems = (data.features || []).map(feature => {
+    if (!data.success || !Array.isArray(data.features)) {
+        throw new Error(
+            data.message || "Invalid location search response"
+        );
+    }
+
+    const features = data.features;
+
+    const items = features.map(feature => {
         const props = feature.properties || {};
-        const label = getPlaceLabel(props);
+        const coords = feature.geometry?.coordinates || [];
+
+        const label =
+            props.label ||
+            [
+                props.name,
+                props.city || props.town || props.village,
+                props.county,
+                props.state
+            ].filter(Boolean).join(", ");
 
         return {
             properties: props,
             geometry: feature.geometry,
-            label: label || props.name || ""
+            label
         };
     });
 
-    return rankPlaces(
-        photonItems,
-        cleanQuery,
-        searchFocus
-    );
+    return rankPlaces(items, cleanQuery, searchFocus);
 }
 
 
