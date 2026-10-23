@@ -63,11 +63,16 @@ export default async function handler(req, res) {
             }
         }
 
-        // Fallback: Photon / OpenStreetMap
-        const params = new URLSearchParams({
-            q: query,
-            limit: "10"
-        });
+       const params = new URLSearchParams({
+    q: query,
+    limit: "10",
+    lang: "en"
+});
+
+ // Search results ko India tak limit karein
+   params.set("lat", "25.45");
+   params.set("lon", "78.15");
+   params.set("location_bias_scale", "0.2"); 
 
         if (Number.isFinite(lat) && Number.isFinite(lon)) {
             params.set("lat", String(lat));
@@ -86,11 +91,16 @@ export default async function handler(req, res) {
         }
 
         const photonData = await photonResponse.json();
+        const indiaFeatures = (photonData.features || []).filter(
+     feature =>
+        String(feature.properties?.countrycode || "")
+            .toUpperCase() === "IN"
+  );
 
         return res.status(200).json({
             success: true,
             source: "photon",
-            features: photonData.features || []
+            features: indiaFeatures
         });
 
     } catch (error) {
