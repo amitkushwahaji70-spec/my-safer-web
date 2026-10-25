@@ -213,25 +213,33 @@ function haversineKm(lat1, lng1, lat2, lng2) {
         Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
+
 function rankPlaces(items, query, focus = null) {
-    const tokens = normalizePlaceText(query)
-        .split(" ")
-        .filter(Boolean);
+    const cleanQuery = normalizePlaceText(query);
+    const tokens = cleanQuery.split(/\s+/).filter(Boolean);
+    const hasMultipleWords = tokens.length > 1;
 
     return items.map(item => {
         const props = item.properties || {};
         const label = item.label || getPlaceLabel(props);
+
         const name = normalizePlaceText(
             [props.name, props.street].filter(Boolean).join(" ")
         );
+
         const full = normalizePlaceText(label);
 
-        let score = 0;
-
-        tokens.forEach(token => {
-            if (name.includes(token)) score += 5;
-            else if (full.includes(token)) score += 2;
-        });
+        // City, town, village aur district ka context
+        const admin = normalizePlaceText([
+            props.city,
+            props.town,
+            props.village,
+            props.locality,
+            props.localadmin,
+            props.county,
+            props.district,
+            props.state
+        ].filter(Boolean).join(" "));
 
         const coords = item.geometry?.coordinates || [];
         const lng = Number(coords[0]);
@@ -245,10 +253,49 @@ function rankPlaces(items, query, focus = null) {
             Number.isFinite(lng)
         ) {
             distanceKm = haversineKm(
-                focus.lat, focus.lng, lat, lng
+                focus.lat,
+                focus.lng,
+                lat,
+                lng
             );
+        }
 
-            score -= distanceKm * 0.25;
+        let score = 0;
+        let nameMatches = 0;
+        let fullMatches = 0;
+        let contextMatches = 0;
+
+        tokens.forEach(token => {
+            if (name.includes(token)) {
+                nameMatches++;
+                score += 10;
+            } else if (full.includes(token)) {
+                fullMatches++;
+                score += 5;
+            }
+
+            // Multi-word query mein city/town context ko bhi dekhein
+            if (hasMultipleWords && admin.includes(token)) {
+                contextMatches++;
+                score += 8;
+            }
+        });
+
+        // Query ke saare words result mein milte hon
+        if (tokens.length > 0 && tokens.every(
+            token => full.includes(token)
+        )) {
+            score += 15;
+        }
+
+        // Ek shabd: pickup ke nazdeek jagah ko strong priority
+        if (!hasMultipleWords && Number.isFinite(distanceKm)) {
+            score -= distanceKm * 1.5;
+        }
+
+        // Multiple words: matching pehle, distance ka effect halka
+        if (hasMultipleWords && Number.isFinite(distanceKm)) {
+            score -= distanceKm * 0.05;
         }
 
         return {
@@ -256,7 +303,10 @@ function rankPlaces(items, query, focus = null) {
             lng,
             label,
             score,
-            distanceKm
+            distanceKm,
+            nameMatches,
+            fullMatches,
+            contextMatches
         };
     })
     .filter(item =>
