@@ -3,7 +3,7 @@
 // =====================================
 
 const RATE_PER_KM = 15;
-const ORS_API_KEY ="eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjkyNWViMmNhODVkZDQ0MTBiZjE5M2Q3ZWI0YjVjMjQ2IiwiaCI6Im11cm11cjY0In0=";
+
 const ORS_BASE_URL = "https://api.heigit.org";
 const ORS_API_BASE_URL = "https://api.openrouteservice.org";
 
@@ -630,25 +630,39 @@ async function calculateBooking() {
           lng: pickupLocation.lng
        });
 
-        const routeUrl =
-            `${ORS_API_BASE_URL}/v2/directions/driving-car` +
-            `?api_key=${ORS_API_KEY}` +
-            `&start=${pickupLocation.lng},${pickupLocation.lat}` +
-            `&end=${dropLocation.lng},${dropLocation.lat}`;
-
-        const routeResponse = await fetch(routeUrl);
-
-        if (!routeResponse.ok) {
-            throw new Error(`Route request failed: ${routeResponse.status}`);
-        }
+       
+        const routeResponse = await fetch("/api/calculate-route", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                start: {
+                    lat: pickupLocation.lat,
+                    lng: pickupLocation.lng
+                },
+                end: {
+                    lat: dropLocation.lat,
+                    lng: dropLocation.lng
+                }
+            })
+        });
 
         const routeData = await routeResponse.json();
-        const distanceMeters =
-            routeData.features?.[0]?.properties?.summary?.distance;
+
+        if (!routeResponse.ok || !routeData.success) {
+            throw new Error(
+                routeData.error || `Route request failed: ${routeResponse.status}`
+            );
+        }
+
+        const distanceMeters = routeData.distanceMeters;
 
         if (typeof distanceMeters !== "number") {
             throw new Error("Route distance was not returned.");
         }
+        const distanceKM = distanceMeters / 1000;
+
 
         const distanceKM = distanceMeters / 1000;
         const fare = Math.round(distanceKM * RATE_PER_KM);
