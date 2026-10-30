@@ -661,7 +661,6 @@ async function calculateBooking() {
         if (typeof distanceMeters !== "number") {
             throw new Error("Route distance was not returned.");
         }
-        const distanceKM = distanceMeters / 1000;
 
 
         const distanceKM = distanceMeters / 1000;
