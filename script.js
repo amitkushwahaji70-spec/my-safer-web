@@ -622,7 +622,17 @@ async function calculateBooking() {
     if (fareOutput) fareOutput.innerText = "₹--";
 
     try {
-        const pickupLocation = await geocodeAddress(pickup);
+        
+const pickupLocation =
+  Number.isFinite(Number(currentLat)) &&
+  Number.isFinite(Number(currentLng))
+    ? {
+        lat: Number(currentLat),
+        lng: Number(currentLng),
+        label: currentAddress || pickup
+      }
+    : await geocodeAddress(pickup);
+
 
 
        const dropLocation = await geocodeAddress(drop, {
