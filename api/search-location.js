@@ -27,80 +27,159 @@ export default async function handler(req, res) {
     const lat = Number(req.query.lat);
     const lon = Number(req.query.lon);
 
+    const hasFocus =
+        Number.isFinite(lat) &&
+        Number.isFinite(lon) &&
+        Math.abs(lat) <= 90 &&
+        Math.abs(lon) <= 180;
+
     try {
-        // Try ORS first
+        let allFeatures = [];
+
+        // =================================
+        // 1. OPENROUTESERVICE SEARCH
+        // =================================
+
         const orsKey = process.env.ORS_API_KEY;
 
         if (orsKey) {
-            const params = new URLSearchParams({
-                api_key: orsKey,
-                text: query,
-                "boundary.country": "IND",
-                size: "10"
+            try {
+                const orsParams = new URLSearchParams({
+                    api_key: orsKey,
+                    text: query,
+                    "boundary.country": "IND",
+                    size: "10"
+                });
+
+                if (hasFocus) {
+                    orsParams.set(
+                        "focus.point.lat",
+                        String(lat)
+                    );
+
+                    orsParams.set(
+                        "focus.point.lon",
+                        String(lon)
+                    );
+                }
+
+                const orsResponse = await fetch(
+                    `https://api.openrouteservice.org/geocode/search?${orsParams}`
+                );
+
+                if (orsResponse.ok) {
+                    const orsData = await orsResponse.json();
+
+                    allFeatures.push(
+                        ...(orsData.features || []).map(feature => ({
+                            ...feature,
+                            properties: {
+                                ...feature.properties,
+                                searchSource: "ors"
+                            }
+                        }))
+                    );
+                } else {
+                    console.error(
+                        "ORS search status:",
+                        orsResponse.status
+                    );
+                }
+            } catch (error) {
+                console.error("ORS search error:", error);
+            }
+        }
+
+        // =================================
+        // 2. PHOTON SEARCH
+        // =================================
+
+        try {
+            const photonParams = new URLSearchParams({
+                q: query,
+                limit: "10",
+                lang: "en"
             });
 
-            if (Number.isFinite(lat) && Number.isFinite(lon)) {
-                params.set("focus.point.lat", String(lat));
-                params.set("focus.point.lon", String(lon));
+            // India search focus
+            photonParams.set("lat", "25.45");
+            photonParams.set("lon", "78.15");
+            photonParams.set("location_bias_scale", "0.2");
+
+            // Actual pickup focus, when available
+            if (hasFocus) {
+                photonParams.set("lat", String(lat));
+                photonParams.set("lon", String(lon));
             }
 
-            const orsResponse = await fetch(
-                `https://api.openrouteservice.org/geocode/search?${params}`
+            const photonResponse = await fetch(
+                `https://photon.komoot.io/api/?${photonParams}`
             );
 
-            if (orsResponse.ok) {
-                const orsData = await orsResponse.json();
+            if (photonResponse.ok) {
+                const photonData = await photonResponse.json();
 
-                if (orsData.features?.length) {
-                    return res.status(200).json({
-                        success: true,
-                        source: "ors",
-                        features: orsData.features
-                    });
-                }
+                const indiaFeatures = (
+                    photonData.features || []
+                ).filter(feature =>
+                    String(
+                        feature.properties?.countrycode || ""
+                    ).toUpperCase() === "IN"
+                );
+
+                allFeatures.push(
+                    ...indiaFeatures.map(feature => ({
+                        ...feature,
+                        properties: {
+                            ...feature.properties,
+                            searchSource: "photon"
+                        }
+                    }))
+                );
             } else {
-                console.error("ORS status:", orsResponse.status);
+                console.error(
+                    "Photon search status:",
+                    photonResponse.status
+                );
             }
+        } catch (error) {
+            console.error("Photon search error:", error);
         }
 
-       const params = new URLSearchParams({
-    q: query,
-    limit: "10",
-    lang: "en"
-});
+        // =================================
+        // 3. REMOVE DUPLICATES
+        // =================================
 
- // Search results ko India tak limit karein
-   params.set("lat", "25.45");
-   params.set("lon", "78.15");
-   params.set("location_bias_scale", "0.2"); 
+        const seen = new Set();
 
-        if (Number.isFinite(lat) && Number.isFinite(lon)) {
-            params.set("lat", String(lat));
-            params.set("lon", String(lon));
-        }
+        const uniqueFeatures = allFeatures.filter(feature => {
+            const props = feature.properties || {};
+            const coords = feature.geometry?.coordinates || [];
 
-        const photonResponse = await fetch(
-            `https://photon.komoot.io/api/?${params}`
-        );
+            const name = String(
+                props.label ||
+                props.name ||
+                props.street ||
+                ""
+            ).toLowerCase().trim();
 
-        if (!photonResponse.ok) {
-            return res.status(502).json({
-                success: false,
-                message: "Location search providers failed"
-            });
-        }
+            const coordinateKey =
+                Number(coords[0]).toFixed(4) + "," +
+                Number(coords[1]).toFixed(4);
 
-        const photonData = await photonResponse.json();
-        const indiaFeatures = (photonData.features || []).filter(
-     feature =>
-        String(feature.properties?.countrycode || "")
-            .toUpperCase() === "IN"
-  );
+            const key = name + "|" + coordinateKey;
+
+            if (seen.has(key)) return false;
+
+            seen.add(key);
+            return true;
+        });
 
         return res.status(200).json({
             success: true,
-            source: "photon",
-            features: indiaFeatures
+            source: "ors+photon",
+            count: uniqueFeatures.length,
+            features: uniqueFeatures
         });
 
     } catch (error) {
@@ -112,3 +191,4 @@ export default async function handler(req, res) {
         });
     }
 }
+
