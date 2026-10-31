@@ -621,18 +621,19 @@ async function calculateBooking() {
     if (distanceOutput) distanceOutput.innerText = "Calculating...";
     if (fareOutput) fareOutput.innerText = "₹--";
 
-    try {
+    try { 
         
-const pickupLocation =
-  Number.isFinite(Number(currentLat)) &&
-  Number.isFinite(Number(currentLng))
-    ? {
+const pickupWasChanged =
+    normalizePlaceText(pickup) !==
+    normalizePlaceText(currentAddress);
+
+const pickupLocation = pickupWasChanged
+    ? await geocodeAddress(pickup)
+    : {
         lat: Number(currentLat),
         lng: Number(currentLng),
         label: currentAddress || pickup
-      }
-    : await geocodeAddress(pickup);
-
+      };
 
 
        const dropLocation = await geocodeAddress(drop, {
